@@ -1,3 +1,38 @@
+// Mobile Share Link Copy Function
+function copyShareLink() {
+    const shareUrl = "https://deepak-csengineer05.github.io/my-portfolio/";
+    const btn = document.getElementById('share-link-btn');
+
+    // Try using the Clipboard API first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            btn.classList.add('copied');
+            setTimeout(() => btn.classList.remove('copied'), 2000);
+        }).catch(() => {
+            fallbackCopy(shareUrl, btn);
+        });
+    } else {
+        fallbackCopy(shareUrl, btn);
+    }
+}
+
+function fallbackCopy(text, btn) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        btn.classList.add('copied');
+        setTimeout(() => btn.classList.remove('copied'), 2000);
+    } catch (err) {
+        alert('Link: ' + text);
+    }
+    document.body.removeChild(textArea);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
     let neuralNetwork; // Define here to be accessible within the scope
@@ -323,7 +358,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Using abstract tech/gradient images to prevent text cropping issues and maintain premium look
     const projectVideos = {
         "agora": [
-            { title: "Agora Intro", src: "projects/videos/agora-intro.mp4", thumbnail: "projects/images/agora.png" }, 
+            { title: "Agora Intro", src: "projects/videos/agora-intro.mp4", thumbnail: "projects/images/agora.png" },
             { title: "Marketplace Overview", src: "demo.mp4", thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&w=600&q=80" }, // Payment/Marketplace
             { title: "Vendor Dashboard", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80" }, // Dashboard/Analytics
             { title: "Checkout Flow", src: "demo.mp4", thumbnail: "https://images.unsplash.com/photo-1556742102-fab9ef4ec7bb?auto=format&fit=crop&w=600&q=80" } // Checkout
@@ -344,7 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
             { title: "Idea Generation", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80" } // Brainstorming/Startup
         ],
         "scms": [
-            { title: "Zonavi Intro", src: "projects/videos/zonavi-intro.mp4", thumbnail: "projects/images/zonavi.png" }, 
+            { title: "Zonavi Intro", src: "projects/videos/zonavi-intro.mp4", thumbnail: "projects/images/zonavi.png" },
             { title: "Student Dashboard", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=600&q=80" } // Education/School
         ],
         "kce-connect": [

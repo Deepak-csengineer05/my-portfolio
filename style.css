@@ -2316,3 +2316,173 @@
                 border-radius: 16px;
             }
         }
+
+        /* ===== MOBILE COMPATIBILITY OVERLAY ===== */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a192f 0%, #112240 50%, #0a192f 100%);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .mobile-overlay-content {
+            max-width: 400px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .mobile-icon {
+            margin-bottom: 2rem;
+        }
+
+        .mobile-icon i {
+            font-size: 4rem;
+            color: var(--accent-color);
+            text-shadow: 0 0 30px rgba(100, 255, 218, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .mobile-overlay h1 {
+            font-size: 1.8rem;
+            color: #e6f1ff;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .mobile-overlay p {
+            font-size: 1rem;
+            color: #8892b0;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-subtitle {
+            color: var(--accent-color) !important;
+            font-weight: 500;
+            margin-bottom: 2rem !important;
+        }
+
+        .mobile-share-section {
+            background: rgba(100, 255, 218, 0.05);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .share-label {
+            font-size: 0.9rem;
+            color: #a8b2d1 !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .share-link-btn {
+            background: var(--accent-color);
+            color: #0a192f;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            margin-bottom: 0.8rem;
+        }
+
+        .share-link-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(100, 255, 218, 0.5);
+        }
+
+        .share-link-btn.copied {
+            background: #4ade80;
+        }
+
+        .share-link-btn.copied span {
+            display: none;
+        }
+
+        .share-link-btn.copied::after {
+            content: 'Copied!';
+        }
+
+        .share-url {
+            font-size: 0.85rem;
+            color: #64ffda !important;
+            word-break: break-all;
+            opacity: 0.8;
+        }
+
+        .mobile-contact-section {
+            margin-top: 1rem;
+        }
+
+        .contact-label {
+            font-size: 0.9rem;
+            color: #a8b2d1 !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .mobile-contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .mobile-contact-btn {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            border-radius: 50%;
+            color: var(--accent-color);
+            font-size: 1.3rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-contact-btn:hover {
+            background: var(--accent-color);
+            color: #0a192f;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(100, 255, 218, 0.4);
+        }
+
+        /* Show mobile overlay only on small screens */
+        @media (max-width: 768px) {
+            .mobile-overlay {
+                display: flex;
+            }
+
+            body>*:not(.mobile-overlay) {
+                display: none !important;
+            }
+        }

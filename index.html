@@ -32,6 +32,44 @@
 </head>
 
 <body class="quantum-mode">
+    <!-- Mobile Compatibility Screen -->
+    <div class="mobile-overlay" id="mobile-overlay">
+        <div class="mobile-overlay-content">
+            <div class="mobile-icon">
+                <i class="fas fa-laptop"></i>
+            </div>
+            <h1>Best Viewed on Desktop</h1>
+            <p>This portfolio is optimized for laptops and larger screens for the best experience.</p>
+            <p class="mobile-subtitle">Please visit on a desktop or laptop to explore my full portfolio!</p>
+
+            <div class="mobile-share-section">
+                <p class="share-label">Share this link:</p>
+                <button class="share-link-btn" id="share-link-btn" onclick="copyShareLink()">
+                    <i class="fas fa-copy"></i>
+                    <span>Copy Link</span>
+                </button>
+                <p class="share-url">deepak-csengineer05.github.io/my-portfolio</p>
+            </div>
+
+            <div class="mobile-contact-section">
+                <p class="contact-label">Connect with me:</p>
+                <div class="mobile-contact-links">
+                    <a href="https://linkedin.com/in/deepak-csengineer05" target="_blank" rel="noopener noreferrer"
+                        class="mobile-contact-btn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="https://github.com/Deepak-csengineer05" target="_blank" rel="noopener noreferrer"
+                        class="mobile-contact-btn">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="mailto:deepak.saravanakumar@outlook.com" class="mobile-contact-btn">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Matrix Rain Canvas -->
     <canvas id="matrix-canvas"></canvas>
 
@@ -405,7 +443,8 @@
                 <div class="projects-scroller">
 
                     <div class="grid-card project-card">
-                        <div class="project-image-wrapper"><img src="projects/images/agora.png" alt="Agora Marketplace Screenshot"></div>
+                        <div class="project-image-wrapper"><img src="projects/images/agora.png"
+                                alt="Agora Marketplace Screenshot"></div>
                         <div class="project-content">
                             <h3 class="project-title">Agora Marketplace</h3>
                             <p class="project-description"><strong>Problem:</strong> Provides a multi-vendor e-commerce
@@ -518,7 +557,8 @@
                     </div>
 
                     <div class="grid-card project-card">
-                        <div class="project-image-wrapper"><img src="projects/images/zonavi.png" alt="Zonavi SCMS Screenshot"></div>
+                        <div class="project-image-wrapper"><img src="projects/images/zonavi.png"
+                                alt="Zonavi SCMS Screenshot"></div>
                         <div class="project-content">
                             <h3 class="project-title">ZONAVI-Student Career Management System (SCMS)</h3>
                             <p class="project-description"><strong>Problem:</strong> A brief description of the problem
