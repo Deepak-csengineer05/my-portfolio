@@ -2479,10 +2479,34 @@
         /* Show mobile overlay only on small screens */
         @media (max-width: 768px) {
             .mobile-overlay {
-                display: flex;
+                display: flex !important;
             }
 
-            body>*:not(.mobile-overlay) {
+            /* Hide ALL other elements */
+            #matrix-canvas,
+            .hacker-toggle,
+            .scroll-progress,
+            .back-to-top,
+            .cert-lightbox,
+            .video-modal,
+            #preloader,
+            #main-content,
+            header,
+            nav,
+            .navbar,
+            section,
+            footer,
+            .hero,
+            .profile-card-wrapper,
+            #neural-canvas,
+            .cursor,
+            .cursor-dot {
                 display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }
+
+            body {
+                overflow: hidden !important;
             }
         }
