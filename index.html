@@ -61,10 +61,24 @@
     <div class="video-modal" id="video-modal">
         <div class="video-modal-content">
             <button class="video-modal-close" id="video-modal-close">&times;</button>
-            <video id="demo-video" controls>
-                <source src="" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+
+            <!-- Gallery View -->
+            <div id="video-gallery-view">
+                <h3 class="gallery-title">Project Demos</h3>
+                <div class="video-gallery-grid" id="video-gallery-grid">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+
+            <!-- Player View -->
+            <div id="video-player-view" style="display: none;">
+                <button class="back-to-gallery-btn" id="back-to-gallery"><i class="fas fa-arrow-left"></i> Back</button>
+                <video id="demo-video" controls>
+                    <source src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <h4 id="video-title-display" class="video-player-title"></h4>
+            </div>
         </div>
     </div>
 
@@ -394,11 +408,16 @@
                         <div class="project-image-wrapper"><span>Project Screenshot Here</span></div>
                         <div class="project-content">
                             <h3 class="project-title">Agora Marketplace</h3>
-                            <p class="project-description"><strong>Problem:</strong> Provides a multi-vendor e-commerce platform connecting customers with product/service vendors, with integrated delivery partner logistics <br><br><strong>Features:</strong> Multi-role dashboards (Customer, Vendor, Delivery Partner, Admin), Product & service listing management, Shopping cart & checkout system.</p>
+                            <p class="project-description"><strong>Problem:</strong> Provides a multi-vendor e-commerce
+                                platform connecting customers with product/service vendors, with integrated delivery
+                                partner logistics <br><br><strong>Features:</strong> Multi-role dashboards (Customer,
+                                Vendor, Delivery Partner, Admin), Product & service listing management, Shopping cart &
+                                checkout system.</p>
                             <div class="tech-stack"><span class="tech-tag">React</span><span
                                     class="tech-tag">Node.js</span><span class="tech-tag">MongoDB</span></div>
                             <div class="project-links">
-                                <button class="demo-video-btn" data-video="demo.mp4"><i class="fas fa-play-circle"></i>
+                                <button class="demo-video-btn" data-project-id="agora"><i
+                                        class="fas fa-play-circle"></i>
                                     Watch Demo</button>
                                 <a href="#" class="project-btn" target="_blank" rel="noopener noreferrer"><i
                                         class="fas fa-external-link-alt"></i> Live Demo</a>
@@ -418,12 +437,13 @@
                             <div class="tech-stack"><span class="tech-tag">Flutter</span><span
                                     class="tech-tag">Firebase</span></div>
                             <div class="project-links">
-                                <button class="demo-video-btn" data-video="demo2.mp4"><i class="fas fa-play-circle"></i>
+                                <button class="demo-video-btn" data-project-id="campus-key"><i
+                                        class="fas fa-play-circle"></i>
                                     Watch Demo</button>
                                 <a href="#" class="project-btn" target="_blank" rel="noopener noreferrer"><i
                                         class="fas fa-external-link-alt"></i> Live Demo</a>
-                                <a href="https://github.com/Deepak-csengineer05" class="project-btn" target="_blank" rel="noopener noreferrer"><i
-                                        class="fab fa-github"></i> View Code</a>
+                                <a href="https://github.com/Deepak-csengineer05" class="project-btn" target="_blank"
+                                    rel="noopener noreferrer"><i class="fab fa-github"></i> View Code</a>
                             </div>
                         </div>
                     </div>
@@ -432,15 +452,20 @@
                         <div class="project-image-wrapper"><span>Project Screenshot Here</span></div>
                         <div class="project-content">
                             <h3 class="project-title">HobbyConnect</h3>
-                            <p class="project-description"><strong>Problem:</strong> A platform to connect people through local activities and hobbies, enabling users to discover, create, and join events.<br><br><strong>Features:</strong> Activity discovery with category filters, Event creation & joining.</p>
-                            <div class="tech-stack"><span class="tech-tag">HTML5</span><span class="tech-tag">CSS3</span><span class="tech-tag">JavaScript</span></div>
+                            <p class="project-description"><strong>Problem:</strong> A platform to connect people
+                                through local activities and hobbies, enabling users to discover, create, and join
+                                events.<br><br><strong>Features:</strong> Activity discovery with category filters,
+                                Event creation & joining.</p>
+                            <div class="tech-stack"><span class="tech-tag">HTML5</span><span
+                                    class="tech-tag">CSS3</span><span class="tech-tag">JavaScript</span></div>
                             <div class="project-links">
-                                <button class="demo-video-btn" data-video="demo3.mp4"><i class="fas fa-play-circle"></i>
+                                <button class="demo-video-btn" data-project-id="hobby-connect"><i
+                                        class="fas fa-play-circle"></i>
                                     Watch Demo</button>
                                 <a href="#" class="project-btn" target="_blank" rel="noopener noreferrer"><i
                                         class="fas fa-external-link-alt"></i> Live Demo</a>
-                                <a href="https://github.com/Deepak-csengineer05" class="project-btn" target="_blank" rel="noopener noreferrer"><i
-                                        class="fab fa-github"></i> View Code</a>
+                                <a href="https://github.com/Deepak-csengineer05" class="project-btn" target="_blank"
+                                    rel="noopener noreferrer"><i class="fab fa-github"></i> View Code</a>
                             </div>
                         </div>
                     </div>
@@ -449,11 +474,16 @@
                         <div class="project-image-wrapper"><span>Project Screenshot Here</span></div>
                         <div class="project-content">
                             <h3 class="project-title">Quantum OS - An OS simulator </h3>
-                            <p class="project-description"><strong>Problem:</strong>A fully-functional browser-based desktop OS simulation with quantum/cyberpunk aesthetics for portfolio showcase and educational purposes. <br><br><strong>Features:</strong> Boot sequence with quantum animation, 17+ built-in apps  , 60+ terminal commands, Persistent settings via LocalStorage.</p>
+                            <p class="project-description"><strong>Problem:</strong>A fully-functional browser-based
+                                desktop OS simulation with quantum/cyberpunk aesthetics for portfolio showcase and
+                                educational purposes. <br><br><strong>Features:</strong> Boot sequence with quantum
+                                animation, 17+ built-in apps , 60+ terminal commands, Persistent settings via
+                                LocalStorage.</p>
                             <div class="tech-stack"><span class="tech-tag">HTML5</span><span
                                     class="tech-tag">CSS3</span><span class="tech-tag">JavaScript</span></div>
                             <div class="project-links">
-                                <button class="demo-video-btn" data-video="demo1.mp4"><i class="fas fa-play-circle"></i>
+                                <button class="demo-video-btn" data-project-id="quantum-os"><i
+                                        class="fas fa-play-circle"></i>
                                     Watch Demo</button>
                                 <a href="#" class="project-btn" target="_blank" rel="noopener noreferrer"><i
                                         class="fas fa-external-link-alt"></i> Live Demo</a>
@@ -467,11 +497,17 @@
                         <div class="project-image-wrapper"><span>Project Screenshot Here</span></div>
                         <div class="project-content">
                             <h3 class="project-title">Startup Simulator AI</h3>
-                            <p class="project-description"><strong>Problem:</strong> Transforms raw startup ideas into comprehensive, actionable startup packages (concept, branding, landing page copy) using AI, democratizing startup validation. <br><br><strong>Features:</strong> Single idea input → multiple outputs (concept, brand, landing page copy),AI-generated brand names, taglines, color palettes.</p>
+                            <p class="project-description"><strong>Problem:</strong> Transforms raw startup ideas into
+                                comprehensive, actionable startup packages (concept, branding, landing page copy) using
+                                AI, democratizing startup validation. <br><br><strong>Features:</strong> Single idea
+                                input → multiple outputs (concept, brand, landing page copy),AI-generated brand names,
+                                taglines, color palettes.</p>
                             <div class="tech-stack"><span class="tech-tag">React</span><span
-                                    class="tech-tag">Node.js</span><span class="tech-tag">MongoDB</span><span class="tech-tag">Gen AI</span></div>
+                                    class="tech-tag">Node.js</span><span class="tech-tag">MongoDB</span><span
+                                    class="tech-tag">Gen AI</span></div>
                             <div class="project-links">
-                                <button class="demo-video-btn" data-video="demo1.mp4"><i class="fas fa-play-circle"></i>
+                                <button class="demo-video-btn" data-project-id="startup-sim"><i
+                                        class="fas fa-play-circle"></i>
                                     Watch Demo</button>
                                 <a href="#" class="project-btn" target="_blank" rel="noopener noreferrer"><i
                                         class="fas fa-external-link-alt"></i> Live Demo</a>
@@ -491,7 +527,7 @@
                             <div class="tech-stack"><span class="tech-tag">React</span><span
                                     class="tech-tag">Node.js</span><span class="tech-tag">MongoDB</span></div>
                             <div class="project-links">
-                                <button class="demo-video-btn" data-video="demo1.mp4"><i class="fas fa-play-circle"></i>
+                                <button class="demo-video-btn" data-project-id="scms"><i class="fas fa-play-circle"></i>
                                     Watch Demo</button>
                                 <a href="#" class="project-btn" target="_blank" rel="noopener noreferrer"><i
                                         class="fas fa-external-link-alt"></i> Live Demo</a>
@@ -505,11 +541,16 @@
                         <div class="project-image-wrapper"><span>Project Screenshot Here</span></div>
                         <div class="project-content">
                             <h3 class="project-title">KCE Connect</h3>
-                            <p class="project-description"><strong>Problem:</strong> A mobile app to manage campus workflows including leave requests, outpass generation, attendance, and assignments for multiple user roles. <br><br><strong>Features:</strong> Multi-role dashboards (Student, Faculty/Tutor, HOD, Warden, Security, Admin), Leave request submission and multi-level approval chain, Outpass QR generation and validation.</p>
+                            <p class="project-description"><strong>Problem:</strong> A mobile app to manage campus
+                                workflows including leave requests, outpass generation, attendance, and assignments for
+                                multiple user roles. <br><br><strong>Features:</strong> Multi-role dashboards (Student,
+                                Faculty/Tutor, HOD, Warden, Security, Admin), Leave request submission and multi-level
+                                approval chain, Outpass QR generation and validation.</p>
                             <div class="tech-stack"><span class="tech-tag">Flutter</span><span
                                     class="tech-tag">Firebase</span></div>
                             <div class="project-links">
-                                <button class="demo-video-btn" data-video="demo1.mp4"><i class="fas fa-play-circle"></i>
+                                <button class="demo-video-btn" data-project-id="kce-connect"><i
+                                        class="fas fa-play-circle"></i>
                                     Watch Demo</button>
                                 <a href="#" class="project-btn" target="_blank" rel="noopener noreferrer"><i
                                         class="fas fa-external-link-alt"></i> Live Demo</a>
@@ -643,7 +684,7 @@
                                 <p class="cert-details">Online Certification</p>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
