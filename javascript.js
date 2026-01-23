@@ -376,6 +376,8 @@ document.addEventListener("DOMContentLoaded", () => {
             { title: "Terminal Commands", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80" } // Terminal
         ],
         "startup-sim": [
+            { title: "Startup Simulator AI Intro", src: "projects/videos/startup_simulator_ai-intro1.mp4", thumbnail: "projects/images/startup_simulator_ai.png" },
+            { title: "Startup Simulator AI Intro 2", src: "projects/videos/startup_simulator_ai-intro2.mp4", thumbnail: "projects/images/thumbnails/startup_simulator_ai_logo.png" },
             { title: "Idea Generation", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80" } // Brainstorming/Startup
         ],
         "scms": [
