@@ -466,7 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const easterEggCode = 'deepak';
     const easterEggOverlay = document.getElementById('easter-egg-overlay');
     const easterEggText = document.getElementById('easter-egg-text');
-    const easterEggMessage = "Thanks for visiting my portfolio! 🚀";
+    const easterEggMessage = "Thanks for visiting my portfolio! 🤗";
 
     function typewriterEffect(element, text, callback) {
         element.textContent = '';
