@@ -372,6 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
             { title: "User Profile", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=600&q=80" } // Profile
         ],
         "quantum-os": [
+            { title: "Startup Simulator AI Intro", src: "projects/videos/quantum_intro.mp4", thumbnail: "projects/images/quantum_os.png" },
             { title: "Boot Sequence", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80" }, // Matrix/Code
             { title: "Terminal Commands", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80" } // Terminal
         ],
