@@ -461,6 +461,164 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // ===== UI GALLERY MODAL LOGIC =====
+    const uiModal = document.getElementById('ui-modal');
+    const uiModalClose = document.getElementById('ui-modal-close');
+    const uiGalleryView = document.getElementById('ui-gallery-view');
+    const uiFullscreenView = document.getElementById('ui-fullscreen-view');
+    const uiGalleryGrid = document.getElementById('ui-gallery-grid');
+    const backToUIGalleryBtn = document.getElementById('back-to-ui-gallery');
+    const uiFullscreenImg = document.getElementById('ui-fullscreen-img');
+    const uiImageTitle = document.getElementById('ui-image-title');
+    const uiPrevBtn = document.getElementById('ui-prev-btn');
+    const uiNextBtn = document.getElementById('ui-next-btn');
+
+    // Project UI Screenshots Data - Using existing project images as placeholders
+    // You can add more screenshots later in a projects/ui/ folder
+    const projectUIScreenshots = {
+        "agora": [
+            { title: "Homepage", src: "projects/images/agora.png" },
+            { title: "Vendor Dashboard", src: "projects/images/agora.png" },
+            { title: "Product Listing", src: "projects/images/agora.png" }
+        ],
+        "campus-key": [
+            { title: "Login Screen", src: "projects/images/campus_key.png" },
+            { title: "Main Dashboard", src: "projects/images/campus_key.png" }
+        ],
+        "hobby-connect": [
+            { title: "Event Discovery", src: "projects/images/hobby_connect.png" },
+            { title: "User Profile", src: "projects/images/hobby_connect.png" }
+        ],
+        "quantum-os": [
+            { title: "Desktop Environment", src: "projects/images/quantum_os.png" },
+            { title: "Terminal App", src: "projects/images/quantum_os.png" },
+            { title: "File Manager", src: "projects/images/quantum_os.png" }
+        ],
+        "startup-sim": [
+            { title: "Landing Page", src: "projects/images/startup_simulator_ai.png" },
+            { title: "Idea Input", src: "projects/images/startup_simulator_ai.png" },
+            { title: "Results Dashboard", src: "projects/images/startup_simulator_ai.png" }
+        ],
+        "scms": [
+            { title: "Student Dashboard", src: "projects/images/zonavi.png" },
+            { title: "Career Planning", src: "projects/images/zonavi.png" }
+        ],
+        "kce-connect": [
+            { title: "Leave Request", src: "projects/images/kce_connect.png" },
+            { title: "Outpass Generation", src: "projects/images/kce_connect.png" }
+        ]
+    };
+
+    let currentUIImages = [];
+    let currentUIIndex = 0;
+
+    // Open UI Gallery
+    document.querySelectorAll('.show-ui-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const projectId = btn.dataset.projectId;
+            currentUIImages = projectUIScreenshots[projectId] || [];
+
+            // Populate Gallery
+            uiGalleryGrid.innerHTML = '';
+            if (currentUIImages.length === 0) {
+                uiGalleryGrid.innerHTML = '<p style="color:white; text-align:center; grid-column: 1/-1;">No UI screenshots available for this project yet.</p>';
+            } else {
+                currentUIImages.forEach((image, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'ui-gallery-item';
+                    item.style.animationDelay = `${index * 0.1}s`;
+                    item.innerHTML = `
+                        <div class="ui-thumbnail">
+                            <img src="${image.src}" alt="${image.title}" onerror="this.style.display='none'">
+                            <div class="ui-overlay">
+                                <i class="fas fa-expand"></i>
+                            </div>
+                        </div>
+                        <div class="ui-info">
+                            <h4>${image.title}</h4>
+                        </div>
+                    `;
+                    item.addEventListener('click', () => {
+                        showFullscreenImage(index);
+                    });
+                    uiGalleryGrid.appendChild(item);
+                });
+            }
+
+            // Show Gallery, Hide Fullscreen
+            uiGalleryView.style.display = 'block';
+            uiFullscreenView.style.display = 'none';
+            uiModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    function showFullscreenImage(index) {
+        currentUIIndex = index;
+        const image = currentUIImages[currentUIIndex];
+
+        uiFullscreenImg.src = image.src;
+        uiImageTitle.textContent = image.title;
+
+        uiGalleryView.style.display = 'none';
+        uiFullscreenView.style.display = 'flex';
+
+        // Update navigation button states
+        uiPrevBtn.style.display = currentUIImages.length > 1 ? 'flex' : 'none';
+        uiNextBtn.style.display = currentUIImages.length > 1 ? 'flex' : 'none';
+    }
+
+    function navigateUIImage(direction) {
+        if (direction === 'prev') {
+            currentUIIndex = (currentUIIndex - 1 + currentUIImages.length) % currentUIImages.length;
+        } else {
+            currentUIIndex = (currentUIIndex + 1) % currentUIImages.length;
+        }
+
+        const image = currentUIImages[currentUIIndex];
+        uiFullscreenImg.src = image.src;
+        uiImageTitle.textContent = image.title;
+    }
+
+    // Event Listeners
+    backToUIGalleryBtn.addEventListener('click', () => {
+        uiFullscreenView.style.display = 'none';
+        uiGalleryView.style.display = 'block';
+    });
+
+    uiPrevBtn.addEventListener('click', () => navigateUIImage('prev'));
+    uiNextBtn.addEventListener('click', () => navigateUIImage('next'));
+
+    function closeUIModal() {
+        uiModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    uiModalClose.addEventListener('click', closeUIModal);
+
+    uiModal.addEventListener('click', (e) => {
+        if (e.target === uiModal) {
+            closeUIModal();
+        }
+    });
+
+    // Keyboard navigation for UI modal
+    document.addEventListener('keydown', (e) => {
+        if (uiModal.classList.contains('active') && uiFullscreenView.style.display === 'flex') {
+            if (e.key === 'ArrowLeft') {
+                navigateUIImage('prev');
+            } else if (e.key === 'ArrowRight') {
+                navigateUIImage('next');
+            } else if (e.key === 'Escape') {
+                if (uiFullscreenView.style.display === 'flex') {
+                    backToUIGalleryBtn.click();
+                } else {
+                    closeUIModal();
+                }
+            }
+        }
+    });
+
     // ===== EASTER EGG - Type "deepak" =====
     let easterEggBuffer = '';
     const easterEggCode = 'deepak';
