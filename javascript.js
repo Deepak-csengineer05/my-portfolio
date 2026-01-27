@@ -387,6 +387,11 @@ document.addEventListener("DOMContentLoaded", () => {
         ],
         "kce-connect": [
             { title: "Leave Request", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80" } // Form/Request
+        ],
+        "circuit-vision-ai": [
+            { title: "Circuit Vision AI Demo", src: "projects/videos/circuit-vision-ai-intro.mp4", thumbnail: "projects/images/circuit_vision_ai.png" },
+            { title: "Circuit Detection", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80" }, // AI/Tech
+            { title: "Fault Analysis", src: "demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80" } // Analytics/Circuit
         ]
     };
 
@@ -506,6 +511,11 @@ document.addEventListener("DOMContentLoaded", () => {
         "kce-connect": [
             { title: "Leave Request", src: "projects/images/kce_connect.png" },
             { title: "Outpass Generation", src: "projects/images/kce_connect.png" }
+        ],
+        "circuit-vision-ai": [
+            { title: "Circuit Analysis Dashboard", src: "projects/images/circuit_vision_ai.png" },
+            { title: "Component Detection", src: "projects/images/circuit_vision_ai.png" },
+            { title: "Fault Detection Results", src: "projects/images/circuit_vision_ai.png" }
         ]
     };
 
