@@ -185,13 +185,25 @@
 
                 <a href="projects/resume/Deepak_Saravanakumar_Resume.pdf" class="resume-btn" target="_blank"
                     rel="noopener noreferrer">Resume</a>
+                <!-- Theme Toggle Switch -->
                 <div class="theme-switcher">
-                    <button class="theme-btn magnetic" data-theme="photon-mode" title="Photon Mode"><i
-                            class="fas fa-sun"></i></button>
-                    <button class="theme-btn magnetic" data-theme="quantum-mode" title="Quantum Mode"><i
-                            class="fas fa-moon"></i></button>
-                    <button class="theme-btn magnetic" data-theme="terminal-mode" title="Terminal Mode"><i
-                            class="fas fa-terminal"></i></button>
+                    <div class="theme-toggle-switch">
+                        <input type="radio" name="theme" id="theme-photon" value="photon-mode">
+                        <input type="radio" name="theme" id="theme-quantum" value="quantum-mode">
+                        <input type="radio" name="theme" id="theme-terminal" value="terminal-mode">
+
+                        <label for="theme-photon" class="theme-option" title="Photon Mode">
+                            <i class="fas fa-sun"></i>
+                        </label>
+                        <label for="theme-quantum" class="theme-option" title="Quantum Mode">
+                            <i class="fas fa-moon"></i>
+                        </label>
+                        <label for="theme-terminal" class="theme-option" title="Terminal Mode">
+                            <i class="fas fa-terminal"></i>
+                        </label>
+
+                        <span class="toggle-slider-bg"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -849,9 +861,58 @@
             </div>
         </section>
 
+        <!-- Puzzle Trigger Link (Centered between Contact and Footer) -->
+        <div class="puzzle-trigger-container">
+            <button id="puzzle-trigger" class="puzzle-trigger">
+                Solve the Puzzle
+            </button>
+        </div>
+
         <footer>
             &copy; <span id="copyright-year"></span> Deepak Saravanakumar. All rights reserved.
         </footer>
+    </div>
+
+    <!-- Puzzle Modal -->
+    <div id="puzzle-modal" class="puzzle-modal">
+        <div class="puzzle-modal-content">
+            <button class="puzzle-close" id="puzzle-close">&times;</button>
+
+            <!-- Puzzle View -->
+            <div id="puzzle-view" class="puzzle-view">
+                <h2 class="puzzle-title">🧩 Word Scramble Challenge</h2>
+                <p class="puzzle-instructions">Unscramble the letters to find the creator's name!</p>
+
+                <div class="letter-tiles">
+                    <span class="letter-tile">E</span>
+                    <span class="letter-tile">A</span>
+                    <span class="letter-tile">D</span>
+                    <span class="letter-tile">K</span>
+                    <span class="letter-tile">P</span>
+                    <span class="letter-tile">E</span>
+                </div>
+
+                <form id="puzzle-form" class="puzzle-form">
+                    <input type="text" id="puzzle-input" class="puzzle-input" placeholder="Type your answer here..."
+                        autocomplete="off" maxlength="10">
+                    <button type="submit" class="puzzle-submit-btn">Submit Answer</button>
+                </form>
+
+                <p class="puzzle-hint">💡 Hint: It's my name!</p>
+            </div>
+
+            <!-- Success View -->
+            <div id="puzzle-success" class="puzzle-success" style="display: none;">
+                <div class="success-icon">🎉</div>
+                <h2 class="success-title">Congratulations!</h2>
+                <p class="success-message">You've explored my entire portfolio and solved the puzzle!</p>
+                <div class="success-hint-box">
+                    <p class="success-hint">✨ Here's your reward:</p>
+                    <p class="success-hint-main">Type <strong>"deepak"</strong> anywhere on the page !</p>
+                </div>
+                <button id="puzzle-got-it" class="puzzle-got-it-btn">Got it! 🚀</button>
+            </div>
+        </div>
     </div>
 
     <script src='javascript.js'></script>

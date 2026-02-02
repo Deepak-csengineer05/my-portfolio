@@ -37,6 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let neuralNetwork; // Define here to be accessible within the scope
 
+    // SECRET THEMES: Track current secret theme and original theme (global scope)
+    let secretThemeActive = null;
+    let originalThemeBeforeSecret = null;
+
     // --- PRELOADER LOGIC ---
     const preloader = document.getElementById("preloader");
     const welcomeTextEl = preloader.querySelector(".welcome-text");
@@ -50,7 +54,15 @@ document.addEventListener("DOMContentLoaded", () => {
     tl.to(".welcome-text span", { y: 0, stagger: 0.1, ease: "power3.out", duration: 1 })
         .to([".unlock-prompt", "#unlock-button"], { opacity: 1, duration: 0.5, ease: "power2.inOut" });
 
+    // Auto-unlock after 7 seconds if button not clicked
+    const autoUnlockTimer = setTimeout(() => {
+        preloader.classList.add("hidden");
+        document.body.classList.add("unlocked");
+        document.body.style.overflow = "";
+    }, 7000); // 7 seconds
+
     document.getElementById("unlock-button").addEventListener("click", () => {
+        clearTimeout(autoUnlockTimer); // Clear auto-unlock timer
         preloader.classList.add("hidden");
         document.body.classList.add("unlocked");
         document.body.style.overflow = "";
@@ -64,9 +76,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // FIXED: This function now uses classList to prevent removing the 'unlocked' class
     function switchTheme(themeName) {
-        document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode');
+        // Remove all theme classes including secret themes
+        document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode', 'barbie-mode');
         document.body.classList.add(themeName);
         localStorage.setItem("preferred-theme", themeName);
+
+        // Reset secret theme tracking when switching to normal themes
+        if (themeName !== 'ironman-mode' && themeName !== 'barbie-mode') {
+            secretThemeActive = null;
+            originalThemeBeforeSecret = null;
+        }
+
+        // Update the radio button to reflect the active theme
+        const themeMap = {
+            'photon-mode': 'theme-photon',
+            'quantum-mode': 'theme-quantum',
+            'terminal-mode': 'theme-terminal'
+        };
+        const radioId = themeMap[themeName];
+        if (radioId) {
+            const radioButton = document.getElementById(radioId);
+            if (radioButton) {
+                radioButton.checked = true;
+            }
+        }
+
         if (neuralNetwork) {
             neuralNetwork.draw();
         }
@@ -317,9 +351,9 @@ document.addEventListener("DOMContentLoaded", () => {
         enhancedObserver.observe(item);
     });
 
-    // Event listeners for buttons
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+    // Event listeners for theme toggle switch (radio inputs)
+    document.querySelectorAll('input[name="theme"]').forEach(radio => {
+        radio.addEventListener('change', () => {
             // Disable hacker mode when switching themes
             if (document.body.classList.contains('hacker-mode')) {
                 window.isHackerMode = false; // Stop animation loop
@@ -333,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     ctx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
                 }
             }
-            switchTheme(btn.dataset.theme);
+            switchTheme(radio.value);
         });
     });
 
@@ -710,16 +744,90 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // FIXED: Exclude puzzle input from easter egg detection
     document.addEventListener('keydown', (e) => {
-        easterEggBuffer += e.key.toLowerCase();
-        if (easterEggBuffer.length > easterEggCode.length) {
-            easterEggBuffer = easterEggBuffer.slice(-easterEggCode.length);
+        // Don't trigger easter egg when typing in the puzzle input
+        const puzzleInput = document.getElementById('puzzle-input');
+        if (document.activeElement === puzzleInput) {
+            return;
         }
-        if (easterEggBuffer === easterEggCode) {
+
+        easterEggBuffer += e.key.toLowerCase();
+
+        // Keep buffer at max 10 characters to detect longer keywords
+        if (easterEggBuffer.length > 10) {
+            easterEggBuffer = easterEggBuffer.slice(-10);
+        }
+
+        // Check for "deepak" easter egg
+        if (easterEggBuffer.slice(-6) === easterEggCode) {
             triggerEasterEgg();
             easterEggBuffer = '';
         }
+
+        // 🦸‍♂️ SECRET: Check for "ironman" theme toggle
+        if (easterEggBuffer.slice(-7) === 'ironman') {
+            if (secretThemeActive === 'ironman-mode') {
+                // Revert to original theme
+                switchTheme(originalThemeBeforeSecret || 'quantum-mode');
+                secretThemeActive = null;
+                originalThemeBeforeSecret = null;
+            } else {
+                // Save current theme and switch to Iron Man
+                originalThemeBeforeSecret = localStorage.getItem('preferred-theme') || 'quantum-mode';
+                secretThemeActive = 'ironman-mode';
+                document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'barbie-mode');
+                document.body.classList.add('ironman-mode');
+                if (neuralNetwork) neuralNetwork.draw();
+
+                // Quick flash effect
+                document.body.style.transition = 'all 0.5s ease';
+                setTimeout(() => {
+                    document.body.style.transition = '';
+                }, 500);
+            }
+            easterEggBuffer = '';
+        }
+
+        // 💖 SECRET: Check for "barbie" theme toggle
+        if (easterEggBuffer.slice(-6) === 'barbie') {
+            if (secretThemeActive === 'barbie-mode') {
+                // Revert to original theme
+                switchTheme(originalThemeBeforeSecret || 'quantum-mode');
+                secretThemeActive = null;
+                originalThemeBeforeSecret = null;
+            } else {
+                // Save current theme and switch to Barbie
+                originalThemeBeforeSecret = localStorage.getItem('preferred-theme') || 'quantum-mode';
+                secretThemeActive = 'barbie-mode';
+                document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode');
+                document.body.classList.add('barbie-mode');
+                if (neuralNetwork) neuralNetwork.draw();
+
+                // Sparkle effect
+                for (let i = 0; i < 30; i++) {
+                    setTimeout(() => {
+                        const sparkle = document.createElement('div');
+                        sparkle.className = 'particle';
+                        sparkle.style.position = 'fixed';
+                        sparkle.style.left = Math.random() * window.innerWidth + 'px';
+                        sparkle.style.top = Math.random() * window.innerHeight + 'px';
+                        sparkle.style.width = '4px';
+                        sparkle.style.height = '4px';
+                        sparkle.style.background = '#ff1493';
+                        sparkle.style.borderRadius = '50%';
+                        sparkle.style.pointerEvents = 'none';
+                        sparkle.style.zIndex = '9999';
+                        sparkle.style.boxShadow = '0 0 10px #ff69b4';
+                        document.body.appendChild(sparkle);
+                        setTimeout(() => sparkle.remove(), 1000);
+                    }, i * 30);
+                }
+            }
+            easterEggBuffer = '';
+        }
     });
+
 
     // ===== MOBILE HAMBURGER MENU =====
     const hamburgerMenu = document.getElementById('hamburger-menu');
@@ -876,6 +984,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+
     hackerToggle.addEventListener('click', toggleHackerMode);
 
     // Handle window resize for matrix
@@ -884,5 +993,145 @@ document.addEventListener("DOMContentLoaded", () => {
             setupMatrix();
         }
     });
+
+    // ===== PUZZLE EASTER EGG LOGIC =====
+    const puzzleTrigger = document.getElementById('puzzle-trigger');
+    const puzzleModal = document.getElementById('puzzle-modal');
+    const puzzleClose = document.getElementById('puzzle-close');
+    const puzzleForm = document.getElementById('puzzle-form');
+    const puzzleInput = document.getElementById('puzzle-input');
+    const puzzleView = document.getElementById('puzzle-view');
+    const puzzleSuccess = document.getElementById('puzzle-success');
+    const puzzleGotItBtn = document.getElementById('puzzle-got-it');
+    const footer = document.querySelector('footer');
+
+    let footerVisibleTimer = null;
+
+    // Show puzzle button when footer is in view for 5 seconds
+    function checkFooterVisibility() {
+        if (!footer) return;
+
+        const puzzleTriggerContainer = document.querySelector('.puzzle-trigger-container');
+        if (!puzzleTriggerContainer) return;
+
+        const footerRect = footer.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+
+        // Check if top of footer is visible in viewport
+        // Using a slight offset (100px) so it triggers when footer is actually entering view
+        const isFooterVisible = footerRect.top <= (windowHeight - 50);
+
+        if (isFooterVisible) {
+            // Footer is visible
+            // If button is NOT visible and timer is NOT running, start timer
+            if (!puzzleTriggerContainer.classList.contains('visible') && !footerVisibleTimer) {
+                footerVisibleTimer = setTimeout(() => {
+                    puzzleTriggerContainer.classList.remove('fade-out');
+                    puzzleTriggerContainer.classList.add('visible');
+                    footerVisibleTimer = null; // Reset timer after execution
+                }, 5000);
+            }
+        } else {
+            // Footer is NOT visible (scrolled away)
+
+            // 1. Clear any pending timer so it doesn't show up later
+            if (footerVisibleTimer) {
+                clearTimeout(footerVisibleTimer);
+                footerVisibleTimer = null;
+            }
+
+            // 2. If it IS currently visible, hide it immediately with fade-out
+            if (puzzleTriggerContainer.classList.contains('visible')) {
+                puzzleTriggerContainer.classList.remove('visible');
+                puzzleTriggerContainer.classList.add('fade-out');
+            }
+        }
+    }
+
+    // Scroll listener for puzzle button visibility
+    let puzzleScrollTicking = false;
+    window.addEventListener('scroll', () => {
+        if (!puzzleScrollTicking) {
+            requestAnimationFrame(() => {
+                checkFooterVisibility();
+                puzzleScrollTicking = false;
+            });
+            puzzleScrollTicking = true;
+        }
+    });
+
+    // Open puzzle modal
+    function openPuzzleModal() {
+        puzzleModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        puzzleInput.focus();
+    }
+
+    // Close puzzle modal
+    function closePuzzleModal() {
+        puzzleModal.classList.remove('active');
+        document.body.style.overflow = '';
+        // Reset puzzle state
+        puzzleInput.value = '';
+        puzzleView.style.display = 'block';
+        puzzleSuccess.style.display = 'none';
+    }
+
+    // Event listeners for modal
+    puzzleTrigger.addEventListener('click', openPuzzleModal);
+    puzzleClose.addEventListener('click', closePuzzleModal);
+
+    // Close on overlay click
+    puzzleModal.addEventListener('click', (e) => {
+        if (e.target === puzzleModal) {
+            closePuzzleModal();
+        }
+    });
+
+    // ESC key to close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && puzzleModal.classList.contains('active')) {
+            closePuzzleModal();
+        }
+    });
+
+    // Handle puzzle submission
+    puzzleForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const answer = puzzleInput.value.trim().toLowerCase();
+        const correctAnswer = 'deepak';
+
+        if (answer === correctAnswer) {
+            // Show success view
+            puzzleView.style.display = 'none';
+            puzzleSuccess.style.display = 'block';
+        } else {
+            // Shake animation for wrong answer
+            puzzleInput.style.animation = 'none';
+            setTimeout(() => {
+                puzzleInput.style.animation = 'shake 0.5s ease';
+            }, 10);
+            puzzleInput.value = '';
+            puzzleInput.focus();
+        }
+    });
+
+    // Add shake animation to CSS dynamically
+    const shakeAnimation = document.createElement('style');
+    shakeAnimation.textContent = `
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+    `;
+    document.head.appendChild(shakeAnimation);
+
+    // "Got it!" button to close success view
+    puzzleGotItBtn.addEventListener('click', closePuzzleModal);
+
+    // Initial check on page load
+    setTimeout(checkFooterVisibility, 500);
 
 });
