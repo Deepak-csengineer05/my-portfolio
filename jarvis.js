@@ -270,27 +270,41 @@ class JARVISAssistant {
     }
 
     handleNavigation(message) {
+        // Only navigate with explicit commands like "go to", "show", "navigate to"
+        // Don't trigger on questions like "tell about X" or "what about X"
+        const isExplicitNavCommand =
+            message.includes('go to') ||
+            message.includes('show me') ||
+            message.includes('navigate to') ||
+            message.includes('take me to') ||
+            message.startsWith('show '); // "show projects", "show about", etc.
+
+        if (!isExplicitNavCommand) {
+            return null; // Not a navigation command
+        }
+
         const sections = {
-            'projects': 'projects',
-            'show projects': 'projects',
-            'skills': 'tech-knowledge',
-            'show skills': 'tech-knowledge',
-            'education': 'journey',
-            'experience': 'journey',
-            'contact': 'contact',
-            'about': 'about'
+            'about': '#about',
+            'home': '#hero',
+            'projects': '#projects',
+            'skills': '#skills',
+            'experience': '#experience',
+            'education': '#education',
+            'certifications': '#certifications',
+            'certificates': '#certifications',
+            'contact': '#contact',
+            'resume': '#'
         };
 
-        for (const [keyword, sectionId] of Object.entries(sections)) {
-            if (message.includes(keyword)) {
-                const section = document.getElementById(sectionId);
-                if (section) {
-                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    return `Navigating to ${keyword} section.`;
+        for (const [key, selector] of Object.entries(sections)) {
+            if (message.includes(key)) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return `Navigating to ${key} section.`;
                 }
             }
         }
-
         return null;
     }
 
