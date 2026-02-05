@@ -295,7 +295,9 @@ class JARVISAssistant {
     }
 
     handleThemeChange(message) {
-        if (message.includes('change theme') || message.includes('switch theme')) {
+        // ONLY respond to explicit "change theme" or "switch theme" commands
+        // This prevents accidental theme changes when user types theme names
+        if (message.includes('change theme') || message.includes('switch theme') || message.includes('activate')) {
             if (message.includes('quantum')) {
                 this.switchTheme('quantum-mode');
                 return 'Switching to Quantum theme.';
@@ -305,6 +307,9 @@ class JARVISAssistant {
             } else if (message.includes('terminal')) {
                 this.switchTheme('terminal-mode');
                 return 'Switching to Terminal theme.';
+            } else if (message.includes('iron man') || message.includes('ironman')) {
+                this.switchTheme('ironman-mode');
+                return 'Switching to Iron Man theme.';
             }
         }
         return null;
@@ -493,17 +498,26 @@ Remember: Be NATURAL and CONVERSATIONAL. Vary your responses. Don't use the same
             window.speechSynthesis.cancel();
 
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
+            utterance.rate = 0.95; // Slightly slower for clarity
+            utterance.pitch = 0.85; // Lower pitch for male voice
             utterance.volume = 1.0;
 
-            // Use a British English voice if available (like JARVIS)
+            // ALWAYS use consistent male voice (British English preferred, like JARVIS)
             const voices = window.speechSynthesis.getVoices();
-            const britishVoice = voices.find(voice =>
-                voice.lang === 'en-GB' || voice.name.includes('British')
-            );
-            if (britishVoice) {
-                utterance.voice = britishVoice;
+
+            // Priority: male British > male US > any male > first available
+            let selectedVoice = voices.find(voice =>
+                voice.lang === 'en-GB' && voice.name.toLowerCase().includes('male')
+            ) || voices.find(voice =>
+                voice.lang.includes('en-GB')
+            ) || voices.find(voice =>
+                voice.lang === 'en-US' && voice.name.toLowerCase().includes('male')
+            ) || voices.find(voice =>
+                voice.lang.includes('en') && (voice.name.toLowerCase().includes('male') || voice.name.toLowerCase().includes('david'))
+            ) || voices[0];
+
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
             }
 
             window.speechSynthesis.speak(utterance);

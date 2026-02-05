@@ -48,15 +48,15 @@
     right: 30px;
     width: 400px;
     height: 580px;
-    background: linear-gradient(135deg, rgba(5, 5, 5, 0.97), rgba(25, 15, 5, 0.97));
+    background: linear-gradient(135deg, rgba(5, 5, 5, 0.85), rgba(25, 15, 5, 0.85));
     border: 2px solid rgba(212, 175, 55, 0.35);
     border-radius: 20px;
     box-shadow:
         0 32px 96px rgba(212, 175, 55, 0.22),
         0 16px 48px rgba(0, 0, 0, 0.7),
         inset 0 1px 2px rgba(212, 175, 55, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
     display: flex;
     flex-direction: column;
     overflow: hidden;

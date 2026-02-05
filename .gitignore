@@ -1,0 +1,21 @@
+# Environment variables
+.env
+*.env
+
+# API Keys (extra protection)
+*_API_KEY*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+*.tmp
+
+# Backups
+*.backup
