@@ -334,10 +334,6 @@ class JARVISAssistant {
     }
 
     async getGeminiResponse(userMessage) {
-        if (!this.apiKey) {
-            return "I apologize, but my AI capabilities are not configured. Please set up the Gemini API key to enable intelligent responses.";
-        }
-
         try {
             // Build conversation context
             const conversationHistory = this.chatHistory
@@ -351,57 +347,31 @@ class JARVISAssistant {
                 ? `${systemPrompt}\n\nPrevious conversation:\n${conversationHistory}\n\nUser: ${userMessage}\n\nJARVIS:`
                 : `${systemPrompt}\n\nUser: ${userMessage}\n\nJARVIS:`;
 
-            // Debug: console.log('🤖 JARVIS: Sending to Gemini...', { userMessage });
+            // Call Netlify function instead of direct Gemini API
+            const functionUrl = '/.netlify/functions/gemini-proxy';
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`, {
+            const response = await fetch(functionUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [{ text: contextualPrompt }]
-                    }],
-                    generationConfig: {
-                        temperature: 0.9,
-                        maxOutputTokens: 250,
-                        topP: 0.95,
-                        topK: 40
-                    },
-                    safetySettings: [
-                        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-                        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-                        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-                        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
-                    ]
+                    message: contextualPrompt,
+                    conversationHistory: conversationHistory || ''
                 })
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                // Debug: console.error('❌ Gemini API Error:', errorData);
-
-                if (response.status === 429) {
-                    return this.knowledgeBase?.jarvisPersonality?.apiLimitMessage ||
-                        "Apologies, but I'm quite busy today. Please try again tomorrow!";
-                }
-
+                console.error('Backend function error:', response.status);
                 return "I'm having a bit of trouble connecting to my AI systems. Could you try rephrasing that?";
             }
 
             const data = await response.json();
-            // Debug: console.log('✅ Gemini Response:', data);
+            const aiResponse = data.response || "I'm having a bit of trouble connecting to my AI systems. Could you try rephrasing that?";
 
-            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                const aiResponse = data.candidates[0].content.parts[0].text;
-                return aiResponse;
-            } else if (data.candidates && data.candidates[0] && data.candidates[0].finishReason === 'SAFETY') {
-                return "I'd prefer to keep our conversation professional. How may I assist you with Deepak's portfolio?";
-            } else {
-                // Debug: console.warn('⚠️ Unexpected response structure:', data);
-                return "I'm not quite sure how to respond to that. Could you ask me about Deepak's projects, skills, or education?";
-            }
+            return aiResponse;
+
         } catch (error) {
-            // Debug: console.error('❌ Exception in getGeminiResponse:', error);
-            return "I'm experiencing some technical difficulties. Please try again in a moment.";
+            console.error('❌ Backend API Error:', error);
+            return "I apologize, but I'm experiencing technical difficulties with my backend systems. Please try again in a moment.";
         }
     }
 
