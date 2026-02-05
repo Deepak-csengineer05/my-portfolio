@@ -31,7 +31,11 @@ exports.handler = async function (event, context) {
         // Get the API key from environment variables (secure!)
         const apiKey = process.env.GEMINI_API_KEY;
 
+        console.log('DEBUG: API key exists?', !!apiKey);
+        console.log('DEBUG: API key length:', apiKey ? apiKey.length : 0);
+
         if (!apiKey) {
+            console.error('ERROR: API key not configured');
             throw new Error('API key not configured');
         }
 
@@ -45,6 +49,8 @@ exports.handler = async function (event, context) {
                 body: JSON.stringify({ error: 'Message is required' })
             };
         }
+
+        console.log('DEBUG: Calling Gemini API...');
 
         // Call Gemini API
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -67,12 +73,24 @@ exports.handler = async function (event, context) {
             })
         });
 
+        console.log('DEBUG: Gemini response status:', geminiResponse.status);
+
         if (!geminiResponse.ok) {
             const errorText = await geminiResponse.text();
-            throw new Error(`Gemini API error: ${errorText}`);
+            console.error('ERROR: Gemini API error:', geminiResponse.status, errorText);
+
+            return {
+                statusCode: 500,
+                headers,
+                body: JSON.stringify({
+                    error: `Gemini API error: ${geminiResponse.status}`,
+                    details: errorText.substring(0, 200) // First 200 chars
+                })
+            };
         }
 
         const data = await geminiResponse.json();
+        console.log('DEBUG: Gemini response received');
 
         // Return the response
         return {
@@ -84,12 +102,13 @@ exports.handler = async function (event, context) {
         };
 
     } catch (error) {
-        console.error('Error:', error);
+        console.error('ERROR: Exception:', error.message, error.stack);
         return {
             statusCode: 500,
             headers,
             body: JSON.stringify({
-                error: error.message || 'Internal server error'
+                error: error.message || 'Internal server error',
+                stack: error.stack ? error.stack.substring(0, 200) : 'No stack trace'
             })
         };
     }
