@@ -77,14 +77,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // FIXED: This function now uses classList to prevent removing the 'unlocked' class
     function switchTheme(themeName) {
         // Remove all theme classes including secret themes
-        document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode', 'barbie-mode');
+        document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode', 'barbie-mode', 'neon-mode', 'spiderman-mode');
         document.body.classList.add(themeName);
         localStorage.setItem("preferred-theme", themeName);
 
         // Reset secret theme tracking when switching to normal themes
-        if (themeName !== 'ironman-mode' && themeName !== 'barbie-mode') {
+        const secretThemes = ['ironman-mode', 'barbie-mode', 'neon-mode', 'spiderman-mode'];
+        if (!secretThemes.includes(themeName)) {
             secretThemeActive = null;
             originalThemeBeforeSecret = null;
+            // Remove Spider-Man web overlay if exists
+            const webOverlay = document.getElementById('spiderman-web-overlay');
+            if (webOverlay) webOverlay.remove();
         }
 
         // Update the radio button to reflect the active theme
@@ -780,11 +784,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.body.classList.add('ironman-mode');
                 if (neuralNetwork) neuralNetwork.draw();
 
-                // Quick flash effect
-                document.body.style.transition = 'all 0.5s ease';
+                // Subtle fade-in transition
+                document.body.style.opacity = '0.92';
+                document.body.style.transition = 'opacity 0.4s ease-out';
                 setTimeout(() => {
-                    document.body.style.transition = '';
-                }, 500);
+                    document.body.style.opacity = '1';
+                    setTimeout(() => {
+                        document.body.style.transition = '';
+                        document.body.style.opacity = '';
+                    }, 400);
+                }, 50);
             }
             easterEggBuffer = '';
         }
@@ -804,28 +813,138 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.body.classList.add('barbie-mode');
                 if (neuralNetwork) neuralNetwork.draw();
 
-                // Sparkle effect
-                for (let i = 0; i < 30; i++) {
+                // Elegant sparkle effect
+                for (let i = 0; i < 15; i++) {
                     setTimeout(() => {
                         const sparkle = document.createElement('div');
-                        sparkle.className = 'particle';
                         sparkle.style.position = 'fixed';
                         sparkle.style.left = Math.random() * window.innerWidth + 'px';
                         sparkle.style.top = Math.random() * window.innerHeight + 'px';
-                        sparkle.style.width = '4px';
-                        sparkle.style.height = '4px';
-                        sparkle.style.background = '#ff1493';
+                        sparkle.style.width = '3px';
+                        sparkle.style.height = '3px';
+                        sparkle.style.background = '#ff4081';
                         sparkle.style.borderRadius = '50%';
                         sparkle.style.pointerEvents = 'none';
                         sparkle.style.zIndex = '9999';
-                        sparkle.style.boxShadow = '0 0 10px #ff69b4';
+                        sparkle.style.opacity = '0.8';
+                        sparkle.style.boxShadow = '0 0 8px rgba(255, 64, 129, 0.6)';
+                        sparkle.style.transition = 'all 0.8s ease-out';
                         document.body.appendChild(sparkle);
-                        setTimeout(() => sparkle.remove(), 1000);
-                    }, i * 30);
+                        setTimeout(() => {
+                            sparkle.style.opacity = '0';
+                            sparkle.style.transform = 'translateY(-20px)';
+                        }, 50);
+                        setTimeout(() => sparkle.remove(), 850);
+                    }, i * 50);
                 }
             }
             easterEggBuffer = '';
         }
+
+        // ⚡ SECRET: Check for "neon" theme toggle
+        if (easterEggBuffer.slice(-4) === 'neon') {
+            if (secretThemeActive === 'neon-mode') {
+                // Revert to original theme
+                switchTheme(originalThemeBeforeSecret || 'quantum-mode');
+                secretThemeActive = null;
+                originalThemeBeforeSecret = null;
+            } else {
+                // Save current theme and switch to Neon
+                originalThemeBeforeSecret = localStorage.getItem('preferred-theme') || 'quantum-mode';
+                secretThemeActive = 'neon-mode';
+                document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode', 'barbie-mode', 'spiderman-mode');
+                document.body.classList.add('neon-mode');
+                if (neuralNetwork) neuralNetwork.draw();
+
+                // Refined electric pulse effect
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(() => {
+                        const pulse = document.createElement('div');
+                        pulse.style.cssText = `
+                            position: fixed;
+                            left: ${Math.random() * 100}%;
+                            top: ${Math.random() * 100}%;
+                            width: ${Math.random() * 80 + 40}px;
+                            height: 1px;
+                            background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.6), transparent);
+                            pointer-events: none;
+                            z-index: 9999;
+                            transform: rotate(${Math.random() * 360}deg);
+                            box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+                            opacity: 0.8;
+                            transition: opacity 0.4s ease-out;
+                        `;
+                        document.body.appendChild(pulse);
+                        setTimeout(() => { pulse.style.opacity = '0'; }, 50);
+                        setTimeout(() => pulse.remove(), 450);
+                    }, i * 60);
+                }
+            }
+            easterEggBuffer = '';
+        }
+
+        // 🕷️ SECRET: Check for "spiderman" theme toggle
+        if (easterEggBuffer.slice(-9) === 'spiderman') {
+            if (secretThemeActive === 'spiderman-mode') {
+                // Revert to original theme
+                switchTheme(originalThemeBeforeSecret || 'quantum-mode');
+                secretThemeActive = null;
+                originalThemeBeforeSecret = null;
+                // Remove web overlay if exists
+                const webOverlay = document.getElementById('spiderman-web-overlay');
+                if (webOverlay) webOverlay.remove();
+            } else {
+                // Save current theme and switch to Spider-Man
+                originalThemeBeforeSecret = localStorage.getItem('preferred-theme') || 'quantum-mode';
+                secretThemeActive = 'spiderman-mode';
+                document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode', 'barbie-mode', 'neon-mode');
+                document.body.classList.add('spiderman-mode');
+                if (neuralNetwork) neuralNetwork.draw();
+
+                // Refined web pattern overlay
+                const webOverlay = document.createElement('div');
+                webOverlay.id = 'spiderman-web-overlay';
+                webOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    z-index: 1;
+                    opacity: 0.03;
+                    background-image: 
+                        repeating-linear-gradient(0deg, transparent, transparent 120px, rgba(229, 57, 53, 0.15) 120px, rgba(229, 57, 53, 0.15) 121px),
+                        repeating-linear-gradient(90deg, transparent, transparent 120px, rgba(229, 57, 53, 0.15) 120px, rgba(229, 57, 53, 0.15) 121px);
+                `;
+                document.body.appendChild(webOverlay);
+
+
+                // Subtle web thread animation
+                for (let i = 0; i < 6; i++) {
+                    setTimeout(() => {
+                        const web = document.createElement('div');
+                        web.style.cssText = `
+                            position: fixed;
+                            left: ${Math.random() * 100}%;
+                            top: -10px;
+                            width: 1px;
+                            height: ${Math.random() * 150 + 80}px;
+                            background: linear-gradient(180deg, transparent, rgba(229, 57, 53, 0.4), transparent);
+                            pointer-events: none;
+                            z-index: 9999;
+                            opacity: 0.7;
+                            animation: webSwing 1.2s ease-out forwards;
+                        `;
+                        document.body.appendChild(web);
+                        setTimeout(() => web.remove(), 1200);
+                    }, i * 100);
+
+                }
+            }
+            easterEggBuffer = '';
+        }
+
     });
 
 

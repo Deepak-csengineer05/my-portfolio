@@ -1,0 +1,655 @@
+/**
+ * JARVIS - Just A Rather Very Intelligent System
+ * AI Portfolio Assistant for Iron Man Theme
+ * Powered by Google Gemini AI
+ */
+
+class JARVISAssistant {
+    constructor() {
+        this.apiKey = null;
+        this.knowledgeBase = null;
+        this.isListening = false;
+        this.recognition = null;
+        this.chatHistory = [];
+        this.soundEnabled = true;
+        this.currentTheme = null;
+
+        // DOM Elements
+        this.jarvisBtn = document.getElementById('jarvis-btn');
+        this.jarvisWindow = document.getElementById('jarvis-window');
+        this.chatContainer = document.getElementById('jarvis-chat');
+        this.voiceBtn = document.getElementById('jarvis-voice-btn');
+        this.textInput = document.getElementById('jarvis-text-input');
+        this.sendBtn = document.getElementById('jarvis-send-btn');
+        this.status = document.getElementById('jarvis-status');
+        this.minimizeBtn = document.getElementById('jarvis-minimize');
+        this.closeBtn = document.getElementById('jarvis-close');
+
+        // Quick Actions
+        this.showProjectsBtn = document.getElementById('jarvis-show-projects');
+        this.contactBtn = document.getElementById('jarvis-contact');
+        this.resumeBtn = document.getElementById('jarvis-resume');
+        this.suggestionsContainer = document.getElementById('jarvis-suggestions');
+        this.suggestionsToggle = document.getElementById('jarvis-suggestions-toggle');
+
+        // Sound effects (using simple beep tones)
+        this.sounds = {
+            startup: this.createBeep(800, 0.1, 0.05),
+            send: this.createBeep(600, 0.05, 0.03)
+        };
+
+        this.init();
+    }
+
+    async init() {
+        // Load API Key
+        await this.loadAPIKey();
+
+        // Load Knowledge Base
+        await this.loadKnowledge();
+
+        // Initialize Speech Recognition
+        this.initSpeechRecognition();
+
+        // Setup Event Listeners
+        this.setupEventListeners();
+
+        // Monitor theme changes
+        this.monitorTheme();
+
+        // Debug: console.log('🤖 JARVIS initialized and ready');
+    }
+
+    async loadAPIKey() {
+        try {
+            // Try to load from .env file (for local development)
+            const response = await fetch('.env');
+            if (response.ok) {
+                const text = await response.text();
+                const match = text.match(/GEMINI_API_KEY=(.+)/);
+                if (match) {
+                    this.apiKey = match[1].trim();
+                }
+            }
+        } catch (error) {
+            // API key will be loaded from window.GEMINI_API_KEY instead
+        }
+
+        // Fallback: Check for inline API key (for production)
+        if (!this.apiKey) {
+            this.apiKey = window.GEMINI_API_KEY || null;
+        }
+    }
+
+    async loadKnowledge() {
+        try {
+            const response = await fetch('jarvis-knowledge.json');
+            this.knowledgeBase = await response.json();
+        } catch (error) {
+            // Fallback with empty knowledge base
+            this.knowledgeBase = { owner: { name: 'Deepak' } }; // Fallback
+        }
+    }
+
+    initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            this.recognition = new SpeechRecognition();
+            this.recognition.continuous = false;
+            this.recognition.interimResults = false;
+            this.recognition.lang = 'en-US';
+
+            this.recognition.onstart = () => {
+                this.isListening = true;
+                this.voiceBtn.classList.add('listening');
+                this.updateStatus('Listening...');
+            };
+
+            this.recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                this.textInput.value = transcript;
+                this.handleUserMessage(transcript);
+            };
+
+            this.recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                this.updateStatus('Error: ' + event.error);
+                this.isListening = false;
+                this.voiceBtn.classList.remove('listening');
+            };
+
+            this.recognition.onend = () => {
+                this.isListening = false;
+                this.voiceBtn.classList.remove('listening');
+                this.updateStatus('Ready');
+            };
+        } else {
+            // Speech recognition not available
+        }
+    }
+
+    setupEventListeners() {
+        // Button to open JARVIS
+        this.jarvisBtn.addEventListener('click', () => this.openJARVIS());
+
+        // Voice button
+        this.voiceBtn.addEventListener('click', () => this.startVoiceInput());
+
+        // Send button
+        this.sendBtn.addEventListener('click', () => {
+            const message = this.textInput.value.trim();
+            if (message) {
+                this.playSound('send');
+                this.handleUserMessage(message);
+                this.textInput.value = '';
+            }
+        });
+
+        // Enter key to send
+        this.textInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.sendBtn.click();
+            }
+        });
+
+        // Window controls
+        this.minimizeBtn.addEventListener('click', () => this.minimizeWindow());
+        this.closeBtn.addEventListener('click', () => this.closeWindow());
+
+        // Quick Action Buttons
+        this.showProjectsBtn.addEventListener('click', () => this.quickShowProjects());
+        this.contactBtn.addEventListener('click', () => this.quickContact());
+        this.resumeBtn.addEventListener('click', () => this.quickDownloadResume());
+
+        // Suggestions Toggle
+        this.suggestionsToggle.addEventListener('click', () => this.toggleSuggestions());
+    }
+
+    monitorTheme() {
+        // Show JARVIS button only in Iron Man theme
+        const checkTheme = () => {
+            const isIronMan = document.body.classList.contains('ironman-mode');
+            this.jarvisBtn.style.display = isIronMan ? 'block' : 'none';
+
+            // Close window if theme changes away from Iron Man
+            if (!isIronMan && this.jarvisWindow.classList.contains('active')) {
+                this.closeWindow();
+            }
+        };
+
+        // Initial check
+        checkTheme();
+
+        // Watch for class changes
+        const observer = new MutationObserver(checkTheme);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    openJARVIS() {
+        this.jarvisWindow.classList.add('active');
+        this.jarvisBtn.style.display = 'none';
+
+        // Play startup sound
+        this.playSound('startup');
+
+        // Show greeting if first time (without long message)
+        if (this.chatHistory.length === 0) {
+            const greeting = this.knowledgeBase?.jarvisPersonality?.greeting ||
+                "Good day, I'm JARVIS - Deepak's portfolio assistant. How may I assist you today?";
+            this.addMessage(greeting, 'jarvis');
+            this.speak(greeting);
+
+            // Show initial suggestions
+            const initialSuggestions = ["Show me his projects", "What are his skills?", "Tell me about Deepak"];
+            this.showSuggestions(initialSuggestions);
+        }
+    }
+
+    closeWindow() {
+        this.jarvisWindow.classList.remove('active');
+        this.jarvisBtn.style.display = 'block';
+    }
+
+    minimizeWindow() {
+        this.jarvisWindow.classList.toggle('minimized');
+    }
+
+    startVoiceInput() {
+        if (!this.recognition) {
+            this.updateStatus('Voice not supported');
+            return;
+        }
+
+        if (this.isListening) {
+            this.recognition.stop();
+        } else {
+            this.recognition.start();
+        }
+    }
+
+    async handleUserMessage(message) {
+        // Add user message to chat
+        this.addMessage(message, 'user');
+
+        // Show typing indicator
+        this.showTyping();
+
+        // Process message
+        const response = await this.processMessage(message);
+
+        // Remove typing indicator
+        this.removeTyping();
+
+        // Add JARVIS response
+        this.addMessage(response, 'jarvis');
+
+        // Show suggested follow-up questions
+        const suggestions = this.getSuggestedQuestions(response);
+        this.showSuggestions(suggestions);
+
+        // Speak response if it's short enough
+        if (response.length < 200) {
+            this.speak(response);
+        }
+    }
+
+    async processMessage(message) {
+        const lowerMessage = message.toLowerCase();
+
+        // Check for navigation commands
+        const navResponse = this.handleNavigation(lowerMessage);
+        if (navResponse) return navResponse;
+
+        // Check for theme commands
+        const themeResponse = this.handleThemeChange(lowerMessage);
+        if (themeResponse) return themeResponse;
+
+        // Use Gemini AI for intelligent responses
+        return await this.getGeminiResponse(message);
+    }
+
+    handleNavigation(message) {
+        const sections = {
+            'projects': 'projects',
+            'show projects': 'projects',
+            'skills': 'tech-knowledge',
+            'show skills': 'tech-knowledge',
+            'education': 'journey',
+            'experience': 'journey',
+            'contact': 'contact',
+            'about': 'about'
+        };
+
+        for (const [keyword, sectionId] of Object.entries(sections)) {
+            if (message.includes(keyword)) {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return `Navigating to ${keyword} section.`;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    handleThemeChange(message) {
+        if (message.includes('change theme') || message.includes('switch theme')) {
+            if (message.includes('quantum')) {
+                this.switchTheme('quantum-mode');
+                return 'Switching to Quantum theme.';
+            } else if (message.includes('photon')) {
+                this.switchTheme('photon-mode');
+                return 'Switching to Photon theme.';
+            } else if (message.includes('terminal')) {
+                this.switchTheme('terminal-mode');
+                return 'Switching to Terminal theme.';
+            }
+        }
+        return null;
+    }
+
+    switchTheme(themeName) {
+        document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode');
+        document.body.classList.add(themeName);
+        localStorage.setItem("preferred-theme", themeName);
+
+        // Update radio button if exists
+        const themeMap = {
+            'photon-mode': 'theme-photon',
+            'quantum-mode': 'theme-quantum',
+            'terminal-mode': 'theme-terminal'
+        };
+        const radioId = themeMap[themeName];
+        if (radioId) {
+            const radio = document.getElementById(radioId);
+            if (radio) radio.checked = true;
+        }
+    }
+
+    async getGeminiResponse(userMessage) {
+        if (!this.apiKey) {
+            return "I apologize, but my AI capabilities are not configured. Please set up the Gemini API key to enable intelligent responses.";
+        }
+
+        try {
+            // Build conversation context
+            const conversationHistory = this.chatHistory
+                .filter(msg => msg.sender !== 'jarvis' || !msg.text.includes('Here are some things'))
+                .slice(-6)
+                .map(msg => `${msg.sender === 'user' ? 'User' : 'JARVIS'}: ${msg.text}`)
+                .join('\n');
+
+            const systemPrompt = this.buildSystemPrompt();
+            const contextualPrompt = conversationHistory
+                ? `${systemPrompt}\n\nPrevious conversation:\n${conversationHistory}\n\nUser: ${userMessage}\n\nJARVIS:`
+                : `${systemPrompt}\n\nUser: ${userMessage}\n\nJARVIS:`;
+
+            // Debug: console.log('🤖 JARVIS: Sending to Gemini...', { userMessage });
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: contextualPrompt }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.9,
+                        maxOutputTokens: 250,
+                        topP: 0.95,
+                        topK: 40
+                    },
+                    safetySettings: [
+                        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+                        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+                        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+                        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
+                    ]
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                // Debug: console.error('❌ Gemini API Error:', errorData);
+
+                if (response.status === 429) {
+                    return this.knowledgeBase?.jarvisPersonality?.apiLimitMessage ||
+                        "Apologies, but I'm quite busy today. Please try again tomorrow!";
+                }
+
+                return "I'm having a bit of trouble connecting to my AI systems. Could you try rephrasing that?";
+            }
+
+            const data = await response.json();
+            // Debug: console.log('✅ Gemini Response:', data);
+
+            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                return aiResponse;
+            } else if (data.candidates && data.candidates[0] && data.candidates[0].finishReason === 'SAFETY') {
+                return "I'd prefer to keep our conversation professional. How may I assist you with Deepak's portfolio?";
+            } else {
+                // Debug: console.warn('⚠️ Unexpected response structure:', data);
+                return "I'm not quite sure how to respond to that. Could you ask me about Deepak's projects, skills, or education?";
+            }
+        } catch (error) {
+            // Debug: console.error('❌ Exception in getGeminiResponse:', error);
+            return "I'm experiencing some technical difficulties. Please try again in a moment.";
+        }
+    }
+
+    buildSystemPrompt() {
+        const kb = this.knowledgeBase;
+        return `You are JARVIS, an AI assistant inspired by Tony Stark's JARVIS from Iron Man. You are ${kb.owner.name}'s personal portfolio assistant.
+
+PERSONALITY:
+- Professional yet friendly and conversational (like talking to a helpful colleague)
+- Slightly witty and charismatic, inspired by JARVIS from the movies
+- Natural and engaging - respond like a real AI assistant, not a scripted bot
+- Use casual greetings when appropriate ("hi", "hello", etc.)
+
+BEHAVIOR:
+- Answer ALL questions naturally - don't refuse to answer things
+- For greetings ("hi", "hello"), respond warmly and offer to help
+- For questions about yourself, explain you're JARVIS, Deepak's AI portfolio assistant
+- You CAN answer general knowledge questions - be helpful!
+- Keep responses concise (under 150 words) but complete
+- Be conversational - vary your responses, don't repeat the same phrases
+
+KNOWLEDGE ABOUT ${kb.owner.name.toUpperCase()}:
+Name: ${kb.owner.name}
+Title: ${kb.owner.title}
+Education: ${kb.owner.education} (CGPA: ${kb.owner.cgpa})
+Location: ${kb.owner.location}
+Email: ${kb.owner.email}
+
+Bio: ${kb.bio}
+
+Core Competencies: ${kb.coreCompetencies.join(', ')}
+
+Skills:
+- Languages: ${kb.skills.languages.join(', ')}
+- Frontend: ${kb.skills.frontend.join(', ')}
+- Backend: ${kb.skills.backend.join(', ')}
+- Databases: ${kb.skills.databases.join(', ')}
+- Tools: ${kb.skills.tools.join(', ')}
+
+Projects: ${kb.projects.map(p => `${p.name} (${p.tech.join(', ')}) - ${p.description}`).join('; ')}
+
+Current Focus: ${kb.currentFocus}
+
+Coding Profiles: GitHub, LinkedIn, LeetCode, GeeksforGeeks, Codeforces, Unstop
+
+Remember: Be NATURAL and CONVERSATIONAL. Vary your responses. Don't use the same phrases repeatedly.`;
+    }
+
+    addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `jarvis-message ${sender}`;
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.textContent = text;
+
+        const time = document.createElement('div');
+        time.className = 'message-time';
+        time.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        messageDiv.appendChild(bubble);
+        messageDiv.appendChild(time);
+        this.chatContainer.appendChild(messageDiv);
+
+        // Scroll to bottom
+        this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+
+        // Store in history
+        this.chatHistory.push({ sender, text, time: new Date() });
+    }
+
+    showTyping() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'jarvis-message jarvis typing-message';
+        typingDiv.innerHTML = `
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        `;
+        this.chatContainer.appendChild(typingDiv);
+        this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+    }
+
+    removeTyping() {
+        const typing = this.chatContainer.querySelector('.typing-message');
+        if (typing) typing.remove();
+    }
+
+    speak(text) {
+        if ('speechSynthesis' in window) {
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            // Use a British English voice if available (like JARVIS)
+            const voices = window.speechSynthesis.getVoices();
+            const britishVoice = voices.find(voice =>
+                voice.lang === 'en-GB' || voice.name.includes('British')
+            );
+            if (britishVoice) {
+                utterance.voice = britishVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    updateStatus(text) {
+        this.status.querySelector('.jarvis-status-text').textContent = text;
+    }
+
+    // ===== QUICK ACTION METHODS =====
+    quickShowProjects() {
+        this.playSound('send');
+        const projectsSection = document.getElementById('projects');
+        if (projectsSection) {
+            projectsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            this.addMessage("Navigating to projects section.", 'jarvis');
+            setTimeout(() => this.closeWindow(), 1000);
+        }
+    }
+
+    quickContact() {
+        this.playSound('send');
+        const contactSection = document.getElementById('contact');
+        if (contactSection) {
+            contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            this.addMessage("Opening contact section for you.", 'jarvis');
+            setTimeout(() => this.closeWindow(), 1000);
+        }
+    }
+
+    quickDownloadResume() {
+        this.playSound('send');
+        this.addMessage("Preparing resume download... Please check your downloads folder!", 'jarvis');
+        // Update this path to your actual resume file
+        const resumeUrl = 'DeepakResume.pdf';
+        const a = document.createElement('a');
+        a.href = resumeUrl;
+        a.download = 'Deepak_Resume.pdf';
+        a.click();
+    }
+
+    // ===== SUGGESTIONS & QUICK ACTIONS TOGGLE =====
+    toggleSuggestions() {
+        const suggestionsVisible = this.suggestionsContainer.classList.toggle('show');
+        const quickActionsContainer = document.querySelector('.jarvis-quick-actions');
+
+        // Toggle both quick actions and suggestions together
+        quickActionsContainer.classList.toggle('show', suggestionsVisible);
+        this.suggestionsToggle.classList.toggle('active', suggestionsVisible);
+    }
+
+    // ===== SUGGESTION CHIPS =====
+    showSuggestions(questions) {
+        this.suggestionsContainer.innerHTML = '';
+
+        questions.forEach(question => {
+            const chip = document.createElement('button');
+            chip.className = 'suggestion-chip';
+            chip.textContent = question;
+            chip.addEventListener('click', () => {
+                this.textInput.value = question;
+                this.sendBtn.click();
+                this.suggestionsContainer.innerHTML = '';
+            });
+            this.suggestionsContainer.appendChild(chip);
+        });
+    }
+
+    getSuggestedQuestions(lastResponse) {
+        const lowerResponse = lastResponse.toLowerCase();
+        const suggestions = [];
+
+        if (lowerResponse.includes('project')) {
+            suggestions.push("Tell me about Quantum OS", "What technologies were used?", "Show more projects");
+        } else if (lowerResponse.includes('skill')) {
+            suggestions.push("What's his strongest skill?", "Does he know AI?", "Show projects");
+        } else if (lowerResponse.includes('education')) {
+            suggestions.push("What is his CGPA?", "Tell me about projects", "What skills?");
+        } else if (lowerResponse.includes('hello') || lowerResponse.includes('hi')) {
+            suggestions.push("Show me his projects", "What are his skills?", "Tell me about Deepak");
+        } else {
+            suggestions.push("Show projects", "Contact Deepak", "What skills?");
+        }
+
+        return suggestions.slice(0, 3);
+    }
+
+    // ===== SOUND EFFECTS =====
+    createBeep(frequency, duration, volume) {
+        return () => {
+            if (!this.soundEnabled) return;
+
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = frequency;
+                gainNode.gain.value = volume;
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                // Sound not supported
+            }
+        };
+    }
+
+    playSound(soundName) {
+        if (this.sounds[soundName]) {
+            this.sounds[soundName]();
+        }
+    }
+
+    // ===== ENHANCED THEME MONITORING =====
+    monitorTheme() {
+        const checkTheme = () => {
+            // JARVIS is ONLY visible in Iron Man theme (exclusive Easter egg)
+            const isIronMan = document.body.classList.contains('ironman-mode');
+            this.jarvisBtn.style.display = isIronMan ? 'block' : 'none';
+
+            // Close window if theme changes away from Iron Man
+            if (!isIronMan && this.jarvisWindow.classList.contains('active')) {
+                this.closeWindow();
+            }
+
+            // Store current theme
+            if (isIronMan) {
+                this.currentTheme = 'ironman';
+            }
+        };
+
+        checkTheme();
+        const observer = new MutationObserver(checkTheme);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    }
+}
+
+// Initialize JARVIS when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Small delay to ensure other scripts are loaded
+    setTimeout(() => {
+        window.jarvis = new JARVISAssistant();
+    }, 100);
+});

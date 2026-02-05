@@ -1,0 +1,155 @@
+{
+    "owner": {
+        "name": "Deepak",
+        "title": "Computer Science Engineer & Full-Stack Developer",
+        "education": "B.E. in Computer Science Engineering (2023-2027) at Karpagam College of Engineering",
+        "cgpa": "7.8 / 10",
+        "location": "Studying in Coimbatore, Native of Karur",
+        "languages": [
+            "English",
+            "Tamil"
+        ],
+        "email": "deepakcsengineer05@gmail.com",
+        "github": "https://github.com/Deepak-csengineer05",
+        "linkedin": "https://linkedin.com/in/deepak-csengineer05",
+        "leetcode": "https://leetcode.com/u/deepak_coder05/",
+        "geeksforgeeks": "https://www.geeksforgeeks.org/user/deepakcoder05/",
+        "codeforces": "https://codeforces.com/profile/deepak.coder210",
+        "unstop": "https://unstop.com/u/deepa23p39881"
+    },
+    "bio": "I am Deepak Saravanakumar, a passionate Computer Science Engineer and creative developer. I specialize in building innovative full-stack solutions with a focus on user experience and clean code. Currently in my final years at Karpagam College of Engineering, I love turning ideas into reality through code.",
+    "coreCompetencies": [
+        "Frontend Development and UI/UX Design",
+        "Cross-Platform Development (Web & Mobile)",
+        "Data Structures & Algorithm Optimization",
+        "Problem-Solving, Critical Thinking and Adaptability",
+        "Fast Learning with Team Collaboration"
+    ],
+    "skills": {
+        "languages": [
+            "Python",
+            "Java",
+            "C++",
+            "JavaScript",
+            "Dart"
+        ],
+        "frontend": [
+            "HTML5",
+            "CSS3",
+            "React",
+            "Bootstrap",
+            "Tailwind CSS",
+            "Flutter"
+        ],
+        "backend": [
+            "Node.js",
+            "Express.js",
+            "Django",
+            "Spring Boot"
+        ],
+        "databases": [
+            "MongoDB",
+            "MySQL",
+            "Firebase"
+        ],
+        "tools": [
+            "Git",
+            "GitHub",
+            "VS Code",
+            "Postman"
+        ]
+    },
+    "projects": [
+        {
+            "name": "Agora Marketplace",
+            "description": "Multi-vendor e-commerce platform connecting customers with product/service vendors, with integrated delivery partner logistics",
+            "features": "Multi-role dashboards (Customer, Vendor, Delivery Partner, Admin), Product & service listing management, Shopping cart & checkout system",
+            "tech": [
+                "React",
+                "Node.js",
+                "MongoDB"
+            ]
+        },
+        {
+            "name": "Campus Key",
+            "description": "Comprehensive university management system",
+            "tech": [
+                "Flutter",
+                "Firebase"
+            ]
+        },
+        {
+            "name": "HobbyConnect",
+            "description": "Platform to connect people through local activities and hobbies, enabling users to discover, create, and join events",
+            "features": "Activity discovery with category filters, Event creation & joining",
+            "tech": [
+                "HTML5",
+                "CSS3",
+                "JavaScript"
+            ]
+        },
+        {
+            "name": "Quantum OS",
+            "description": "A fully-functional browser-based desktop OS simulation with quantum/cyberpunk aesthetics for portfolio showcase and educational purposes",
+            "features": "Boot sequence with quantum animation, 17+ built-in apps, 60+ terminal commands, Persistent settings via LocalStorage",
+            "tech": [
+                "HTML5",
+                "CSS3",
+                "JavaScript"
+            ]
+        },
+        {
+            "name": "Startup Simulator AI",
+            "description": "Transforms raw startup ideas into comprehensive, actionable startup packages (concept, branding, landing page copy) using AI, democratizing startup validation",
+            "features": "Single idea input → multiple outputs (concept, brand, landing page copy), AI-generated brand names, taglines, color palettes",
+            "tech": [
+                "React",
+                "Node.js",
+                "MongoDB",
+                "Gen AI"
+            ]
+        },
+        {
+            "name": "ZONAVI - Student Career Management System (SCMS)",
+            "description": "Student career management system",
+            "tech": [
+                "React",
+                "Node.js",
+                "MongoDB"
+            ]
+        },
+        {
+            "name": "KCE Connect",
+            "description": "A mobile app to manage campus workflows including leave requests, outpass generation, attendance, and assignments for multiple user roles",
+            "features": "Multi-role dashboards (Student, Faculty/Tutor, HOD, Warden, Security, Admin), Leave request submission and multi-level approval chain, Outpass QR generation and validation",
+            "tech": [
+                "Flutter",
+                "Firebase"
+            ]
+        },
+        {
+            "name": "Circuit Vision AI",
+            "description": "An AI-powered system for automated circuit board analysis and fault detection, helping engineers quickly identify issues in electronic circuits",
+            "features": "Real-time circuit component detection, Automated fault diagnosis and classification, Visual circuit mapping and analysis, Machine learning-based anomaly detection",
+            "tech": [
+                "Python",
+                "TensorFlow",
+                "OpenCV"
+            ]
+        }
+    ],
+    "currentFocus": "Building interactive web experiences and exploring AI integration in portfolio projects",
+    "funFacts": [
+        "I love creating Easter eggs in my projects",
+        "This portfolio has 4 secret gradient themes!",
+        "I'm inspired by Tony Stark's vision of AI",
+        "I have a JARVIS AI assistant in my portfolio!"
+    ],
+    "jarvisPersonality": {
+        "greeting": "Good day, I'm JARVIS - Deepak's portfolio assistant. How may I assist you today?",
+        "offTopicResponse": "I appreciate your curiosity, but I'm Deepak's portfolio assistant. I can help with information about Deepak, his projects, skills, or navigate this portfolio. I can also answer general questions if you need!",
+        "unknownResponse": "I'm not quite sure about that. You can ask me about Deepak's education, projects, skills, navigate to different sections, or ask me general questions!",
+        "apiLimitMessage": "Apologies, but I'm quite busy today. Please try again tomorrow! In the meantime, feel free to explore the portfolio.",
+        "tone": "Professional, helpful, and slightly witty - inspired by Tony Stark's JARVIS"
+    }
+}
