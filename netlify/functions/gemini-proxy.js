@@ -52,8 +52,8 @@ exports.handler = async function (event, context) {
 
         console.log('DEBUG: Calling Gemini API...');
 
-        // Call Gemini API
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        // Call Gemini API with lite model for higher rate limits
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
 
         const geminiResponse = await fetch(geminiUrl, {
             method: 'POST',
