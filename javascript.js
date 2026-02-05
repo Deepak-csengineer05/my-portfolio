@@ -748,22 +748,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // FIXED: Exclude puzzle input from easter egg detection
+    // Easter Egg Detection - Listen for key presses
     document.addEventListener('keydown', (e) => {
-        // Don't trigger easter egg when typing in the puzzle input
-        const puzzleInput = document.getElementById('puzzle-input');
-        if (document.activeElement === puzzleInput) {
-            return;
+        // CRITICAL FIX: Ignore keypresses inside JARVIS chat input
+        const isJarvisInput = e.target && (
+            e.target.id === 'jarvis-text-input' ||
+            e.target.closest('.jarvis-input-area') ||
+            e.target.closest('#jarvis-window')
+        );
+
+        if (isJarvisInput) {
+            return; // Don't trigger Easter eggs when typing in JARVIS
         }
 
+        // Continue with normal Easter egg detection
         easterEggBuffer += e.key.toLowerCase();
 
-        // Keep buffer at max 10 characters to detect longer keywords
+        // Keep buffer reasonable length
         if (easterEggBuffer.length > 10) {
             easterEggBuffer = easterEggBuffer.slice(-10);
         }
 
-        // Check for "deepak" easter egg
+        // Check for "deepak" Easter egg
         if (easterEggBuffer.slice(-6) === easterEggCode) {
             triggerEasterEgg();
             easterEggBuffer = '';
