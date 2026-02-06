@@ -349,6 +349,13 @@ class JARVISAssistant {
 
     async getGeminiResponse(userMessage) {
         try {
+            // Check if web search is needed
+            let searchResults = null;
+            if (this.needsWebSearch(userMessage)) {
+                console.log('🔍 Web search detected, performing search...');
+                searchResults = await this.performWebSearch(userMessage);
+            }
+
             // Build conversation context
             const conversationHistory = this.chatHistory
                 .filter(msg => msg.sender !== 'jarvis' || !msg.text.includes('Here are some things'))
@@ -357,9 +364,15 @@ class JARVISAssistant {
                 .join('\n');
 
             const systemPrompt = this.buildSystemPrompt();
-            const contextualPrompt = conversationHistory
+            let contextualPrompt = conversationHistory
                 ? `${systemPrompt}\n\nPrevious conversation:\n${conversationHistory}\n\nUser: ${userMessage}\n\nJARVIS:`
                 : `${systemPrompt}\n\nUser: ${userMessage}\n\nJARVIS:`;
+
+            // Add search results to prompt if available
+            if (searchResults && searchResults.results && searchResults.results.length > 0) {
+                const searchContext = this.formatSearchResults(searchResults);
+                contextualPrompt = `${systemPrompt}\n\n${searchContext}\n\nPrevious conversation:\n${conversationHistory}\n\nUser: ${userMessage}\n\nJARVIS: Based on the search results above, `;
+            }
 
             // Call Netlify function instead of direct Gemini API
             const functionUrl = '/.netlify/functions/gemini-proxy';
@@ -389,9 +402,91 @@ class JARVISAssistant {
         }
     }
 
+    needsWebSearch(message) {
+        const lowerMessage = message.toLowerCase();
+
+        // Keywords that indicate need for real-time search
+        const searchKeywords = [
+            'news', 'latest', 'current', 'recent', 'today',
+            'yesterday', 'this week', 'this month', 'this year',
+            'what happened', 'who won', 'weather',
+            'stock price', 'score', 'result',
+            'trending', 'breaking', 'update'
+        ];
+
+        // Check if message contains any search keywords
+        return searchKeywords.some(keyword => lowerMessage.includes(keyword));
+    }
+
+    async performWebSearch(query) {
+        try {
+            console.log('🔍 Performing web search for:', query);
+
+            const response = await fetch('/.netlify/functions/serper-search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: query })
+            });
+
+            if (!response.ok) {
+                console.error('Web search error:', response.status);
+                return null;
+            }
+
+            const data = await response.json();
+            console.log('✅ Web search completed:', data.results?.length, 'results');
+            return data;
+
+        } catch (error) {
+            console.error('❌ Web search failed:', error);
+            return null;
+        }
+    }
+
+    formatSearchResults(searchData) {
+        let formatted = "WEB SEARCH RESULTS:\n\n";
+
+        // Add knowledge graph if available
+        if (searchData.knowledgeGraph) {
+            formatted += `Knowledge Graph:\n`;
+            formatted += `Title: ${searchData.knowledgeGraph.title}\n`;
+            formatted += `Description: ${searchData.knowledgeGraph.description}\n\n`;
+        }
+
+        // Add top search results
+        if (searchData.results && searchData.results.length > 0) {
+            formatted += `Top Search Results:\n`;
+            searchData.results.slice(0, 5).forEach((result, index) => {
+                formatted += `${index + 1}. ${result.title}\n`;
+                formatted += `   ${result.snippet}\n`;
+                formatted += `   Source: ${result.link}\n\n`;
+            });
+        }
+
+        formatted += "INSTRUCTIONS: Use the above search results to provide an accurate, up-to-date answer. Mention that you've searched the web, and cite sources when appropriate.";
+
+        return formatted;
+    }
+
     buildSystemPrompt() {
         const kb = this.knowledgeBase;
+
+        // Get current date and time
+        const now = new Date();
+        const currentDateTime = now.toLocaleString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZoneName: 'short'
+        });
+
         return `You are JARVIS, an AI assistant inspired by Tony Stark's JARVIS from Iron Man. You are ${kb.owner.name}'s personal portfolio assistant.
+
+CURRENT DATE & TIME: ${currentDateTime}
+IMPORTANT: When answering questions about today, the current date, or time-related queries, ALWAYS use the above date/time. Your training data has a cutoff, but the CURRENT DATE & TIME provided above is the accurate, real-time information.
 
 PERSONALITY:
 - Professional yet friendly and conversational (like talking to a helpful colleague)
