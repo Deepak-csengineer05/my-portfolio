@@ -54,7 +54,6 @@ exports.handler = async function (event, context) {
         const models = [
             'gemini-2.5-flash-lite',
             'gemini-2.5-flash',
-            'gemini-3.0-flash'
         ];
 
         let lastError = null;
