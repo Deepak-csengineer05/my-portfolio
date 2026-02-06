@@ -50,54 +50,94 @@ exports.handler = async function (event, context) {
             };
         }
 
-        console.log('DEBUG: Calling Gemini API...');
+        // Models to try in order (fallback chain)
+        const models = [
+            'gemini-2.5-flash-lite',
+            'gemini-2.5-flash',
+            'gemini-3.0-flash-lite',
+            'gemini-3.0-flash'
+        ];
 
-        // Call Gemini API with lite model for higher rate limits
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
+        let lastError = null;
 
-        const geminiResponse = await fetch(geminiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: message
-                    }]
-                }],
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 900  // Increased to handle search results
+        // Try each model until one succeeds
+        for (const model of models) {
+            try {
+                console.log(`DEBUG: Trying model: ${model}`);
+
+                const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+                const geminiResponse = await fetch(geminiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: message
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 900
+                        }
+                    })
+                });
+
+                console.log(`DEBUG: ${model} response status:`, geminiResponse.status);
+
+                // If rate limited (429), try next model
+                if (geminiResponse.status === 429) {
+                    console.log(`WARN: ${model} rate limited (429), trying next model...`);
+                    lastError = { status: 429, model: model };
+                    continue; // Try next model
                 }
-            })
-        });
 
-        console.log('DEBUG: Gemini response status:', geminiResponse.status);
+                // If other error, return it
+                if (!geminiResponse.ok) {
+                    const errorText = await geminiResponse.text();
+                    console.error(`ERROR: ${model} API error:`, geminiResponse.status, errorText);
 
-        if (!geminiResponse.ok) {
-            const errorText = await geminiResponse.text();
-            console.error('ERROR: Gemini API error:', geminiResponse.status, errorText);
+                    return {
+                        statusCode: 500,
+                        headers,
+                        body: JSON.stringify({
+                            error: `${model} API error: ${geminiResponse.status}`,
+                            details: errorText.substring(0, 200)
+                        })
+                    };
+                }
 
-            return {
-                statusCode: 500,
-                headers,
-                body: JSON.stringify({
-                    error: `Gemini API error: ${geminiResponse.status}`,
-                    details: errorText.substring(0, 200) // First 200 chars
-                })
-            };
+                // Success! Parse and return response
+                const data = await geminiResponse.json();
+                console.log(`SUCCESS: ${model} response received`);
+
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({
+                        response: data.candidates[0]?.content?.parts[0]?.text || 'No response generated',
+                        modelUsed: model
+                    })
+                };
+
+            } catch (modelError) {
+                console.error(`ERROR: ${model} failed:`, modelError.message);
+                lastError = { model: model, error: modelError.message };
+                continue; // Try next model
+            }
         }
 
-        const data = await geminiResponse.json();
-        console.log('DEBUG: Gemini response received');
-
-        // Return the response
+        // All models failed
+        console.error('ERROR: All models failed');
         return {
-            statusCode: 200,
+            statusCode: 503,
             headers,
             body: JSON.stringify({
-                response: data.candidates[0]?.content?.parts[0]?.text || 'No response generated'
+                error: 'All AI models are currently unavailable or rate limited',
+                lastError: lastError,
+                suggestion: 'Please try again in a few moments'
             })
         };
 
