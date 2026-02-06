@@ -6,7 +6,8 @@
 
 class JARVISAssistant {
     constructor() {
-        this.apiKey = null;
+        this.geminiApiKey = null;
+        this.serperApiKey = null;
         this.knowledgeBase = null;
         this.isListening = false;
         this.recognition = null;
@@ -61,24 +62,8 @@ class JARVISAssistant {
     }
 
     async loadAPIKey() {
-        try {
-            // Try to load from .env file (for local development)
-            const response = await fetch('.env');
-            if (response.ok) {
-                const text = await response.text();
-                const match = text.match(/GEMINI_API_KEY=(.+)/);
-                if (match) {
-                    this.apiKey = match[1].trim();
-                }
-            }
-        } catch (error) {
-            // API key will be loaded from window.GEMINI_API_KEY instead
-        }
-
-        // Fallback: Check for inline API key (for production)
-        if (!this.apiKey) {
-            this.apiKey = window.GEMINI_API_KEY || null;
-        }
+        // No longer needed - API keys are secured on Vercel backend
+        console.log('🔑 API keys secured on Vercel backend');
     }
 
     async loadKnowledge() {
@@ -374,31 +359,33 @@ class JARVISAssistant {
                 contextualPrompt = `${systemPrompt}\n\n${searchContext}\n\nPrevious conversation:\n${conversationHistory}\n\nUser: ${userMessage}\n\nJARVIS: Based on the search results above, `;
             }
 
-            // Call Netlify function instead of direct Gemini API
-            const functionUrl = '/.netlify/functions/gemini-proxy';
+            // Call Vercel serverless function
+            console.log('🚀 Calling Vercel Gemini API...');
 
-            const response = await fetch(functionUrl, {
+            const response = await fetch('/api/gemini', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: contextualPrompt,
-                    conversationHistory: conversationHistory || ''
-                })
+                body: JSON.stringify({ message: contextualPrompt })
             });
 
             if (!response.ok) {
-                console.error('Backend function error:', response.status);
-                return "I'm having a bit of trouble connecting to my AI systems. Could you try rephrasing that?";
+                console.error('❌ Vercel function error:', response.status);
+                return "I'm having trouble connecting to my AI systems. Please try again in a moment.";
             }
 
             const data = await response.json();
-            const aiResponse = data.response || "I'm having a bit of trouble connecting to my AI systems. Could you try rephrasing that?";
+            const aiResponse = data.response;
 
-            return aiResponse;
+            if (aiResponse) {
+                console.log('✅ AI response received', data.modelUsed ? `(using ${data.modelUsed})` : '');
+                return aiResponse;
+            }
+
+            return "I'm having trouble connecting to my AI systems. Please try again in a moment.";
 
         } catch (error) {
-            console.error('❌ Backend API Error:', error);
-            return "I apologize, but I'm experiencing technical difficulties with my backend systems. Please try again in a moment.";
+            console.error('❌ API Error:', error);
+            return "I apologize, but I'm experiencing technical difficulties. Please try again.";
         }
     }
 
@@ -422,14 +409,15 @@ class JARVISAssistant {
         try {
             console.log('🔍 Performing web search for:', query);
 
-            const response = await fetch('/.netlify/functions/serper-search', {
+            // Call Vercel serverless function
+            const response = await fetch('/api/serper', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: query })
             });
 
             if (!response.ok) {
-                console.error('Web search error:', response.status);
+                console.error('❌ Web search error:', response.status);
                 return null;
             }
 
