@@ -68,7 +68,7 @@ exports.handler = async function (event, context) {
                 }],
                 generationConfig: {
                     temperature: 0.7,
-                    maxOutputTokens: 500
+                    maxOutputTokens: 900  // Increased to handle search results
                 }
             })
         });

@@ -456,14 +456,14 @@ class JARVISAssistant {
         // Add top search results
         if (searchData.results && searchData.results.length > 0) {
             formatted += `Top Search Results:\n`;
-            searchData.results.slice(0, 5).forEach((result, index) => {
+            searchData.results.slice(0, 3).forEach((result, index) => {
                 formatted += `${index + 1}. ${result.title}\n`;
                 formatted += `   ${result.snippet}\n`;
                 formatted += `   Source: ${result.link}\n\n`;
             });
         }
 
-        formatted += "INSTRUCTIONS: Use the above search results to provide an accurate, up-to-date answer. Mention that you've searched the web, and cite sources when appropriate.";
+        formatted += "Use the above info to answer concisely (under 150 words). Mention sources if relevant.";
 
         return formatted;
     }
