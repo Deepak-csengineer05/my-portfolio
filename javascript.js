@@ -41,6 +41,200 @@ document.addEventListener("DOMContentLoaded", () => {
     let secretThemeActive = null;
     let originalThemeBeforeSecret = null;
 
+    // ===== THEME BACKGROUND SLIDESHOW MANAGER =====
+    class ThemeBackgroundSlideshow {
+        constructor() {
+            this.themes = {
+                'ironman-mode': [
+                    'projects/images/backgrounds/ironman-1.png',
+                    'projects/images/backgrounds/ironman-2.jpg',
+                    'projects/images/backgrounds/ironman-3.jpg'
+                ],
+                'batman-mode': [
+                    'projects/images/backgrounds/batman-1.jpg',
+                    'projects/images/backgrounds/batman-2.jpg',
+                    'projects/images/backgrounds/batman-3.jpg'
+                ],
+                'spiderman-mode': [
+                    'projects/images/backgrounds/spiderman-1.jpg',
+                    'projects/images/backgrounds/spiderman-2.jpg',
+                    'projects/images/backgrounds/spiderman-3.jpg'
+                ],
+                'neon-mode': [
+                    'projects/images/backgrounds/neon-1.jpg',
+                    'projects/images/backgrounds/neon-2.jpg',
+                    'projects/images/backgrounds/neon-3.jpg'
+                ]
+            };
+            
+            this.currentTheme = null;
+            this.currentIndex = 0;
+            this.intervalId = null;
+            this.preloadedImages = {};
+            
+            // Monitor theme changes
+            this.observeThemeChanges();
+        }
+        
+        observeThemeChanges() {
+            const observer = new MutationObserver(() => {
+                this.handleThemeChange();
+            });
+            
+            observer.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+            
+            // Initial check
+            this.handleThemeChange();
+        }
+        
+        handleThemeChange() {
+            const body = document.body;
+            let activeTheme = null;
+            
+            // Check which theme is active
+            for (const theme of Object.keys(this.themes)) {
+                if (body.classList.contains(theme)) {
+                    activeTheme = theme;
+                    break;
+                }
+            }
+            
+            // If theme changed
+            if (activeTheme !== this.currentTheme) {
+                this.stop();
+                
+                if (activeTheme && this.themes[activeTheme]) {
+                    this.currentTheme = activeTheme;
+                    this.currentIndex = 0;
+                    this.preloadImages(activeTheme);
+                    this.start();
+                } else {
+                    this.currentTheme = null;
+                    body.classList.remove('slideshow-active');
+                    body.style.setProperty('--bg-image', 'none');
+                }
+            }
+        }
+        
+        preloadImages(theme) {
+            if (!this.preloadedImages[theme]) {
+                this.preloadedImages[theme] = [];
+                this.themes[theme].forEach(src => {
+                    const img = new Image();
+                    img.src = src;
+                    this.preloadedImages[theme].push(img);
+                });
+            }
+        }
+        
+        start() {
+            if (!this.currentTheme) return;
+            
+            document.body.classList.add('slideshow-active');
+            this.showImage(0);
+            
+            // Change image every 8 seconds
+            this.intervalId = setInterval(() => {
+                this.nextImage();
+            }, 8000);
+        }
+        
+        stop() {
+            if (this.intervalId) {
+                clearInterval(this.intervalId);
+                this.intervalId = null;
+            }
+        }
+        
+        showImage(index) {
+            if (!this.currentTheme || !this.themes[this.currentTheme]) return;
+            
+            const images = this.themes[this.currentTheme];
+            const imageSrc = images[index];
+            
+            // Set background image
+            document.body.style.setProperty('--bg-image', `url('${imageSrc}')`);
+            
+            // Update ::before pseudo-element
+            const style = document.createElement('style');
+            style.id = 'theme-bg-style';
+            style.textContent = `body::before { background-image: url('${imageSrc}'); }`;
+            
+            // Remove old style if exists
+            const oldStyle = document.getElementById('theme-bg-style');
+            if (oldStyle) oldStyle.remove();
+            
+            document.head.appendChild(style);
+        }
+        
+        nextImage() {
+            if (!this.currentTheme) return;
+            
+            const images = this.themes[this.currentTheme];
+            this.currentIndex = (this.currentIndex + 1) % images.length;
+            this.showImage(this.currentIndex);
+        }
+    }
+    
+    // Initialize slideshow manager
+    const backgroundSlideshow = new ThemeBackgroundSlideshow();
+
+    // ===== NAVBAR AUTO-HIDE FOR HIDDEN THEMES =====
+    function setupNavbarAutoHide() {
+        // Create hover zone for navbar reveal
+        const revealZone = document.createElement('div');
+        revealZone.className = 'navbar-reveal-zone';
+        document.body.appendChild(revealZone);
+
+        const header = document.querySelector('header');
+        let isNavbarVisible = false;
+
+        // Show navbar when mouse enters top zone
+        revealZone.addEventListener('mouseenter', () => {
+            if (!isNavbarVisible && isHiddenThemeActive()) {
+                header.style.setProperty('transform', 'translateY(0)', 'important');
+                isNavbarVisible = true;
+            }
+        });
+
+        // Hide navbar when mouse leaves header
+        header.addEventListener('mouseleave', () => {
+            if (isNavbarVisible && isHiddenThemeActive()) {
+                header.style.setProperty('transform', 'translateY(-100%)', 'important');
+                isNavbarVisible = false;
+            }
+        });
+
+        // Check if hidden theme is active
+        function isHiddenThemeActive() {
+            return document.body.classList.contains('ironman-mode') ||
+                   document.body.classList.contains('batman-mode') ||
+                   document.body.classList.contains('spiderman-mode') ||
+                   document.body.classList.contains('neon-mode') ||
+                   document.body.classList.contains('barbie-mode') ||
+                   document.body.classList.contains('ben10-mode');
+        }
+
+        // Reset navbar position when switching themes
+        const observer = new MutationObserver(() => {
+            if (!isHiddenThemeActive()) {
+                header.style.transform = '';
+                isNavbarVisible = false;
+            }
+        });
+
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+
+    // Initialize navbar auto-hide
+    setupNavbarAutoHide();
+
     // --- PRELOADER LOGIC ---
     const preloader = document.getElementById("preloader");
     const welcomeTextEl = preloader.querySelector(".welcome-text");
@@ -77,18 +271,26 @@ document.addEventListener("DOMContentLoaded", () => {
     // FIXED: This function now uses classList to prevent removing the 'unlocked' class
     function switchTheme(themeName) {
         // Remove all theme classes including secret themes
-        document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode', 'barbie-mode', 'neon-mode', 'spiderman-mode');
+        document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode', 'barbie-mode', 'neon-mode', 'spiderman-mode', 'batman-mode', 'ben10-mode');
         document.body.classList.add(themeName);
         localStorage.setItem("preferred-theme", themeName);
 
         // Reset secret theme tracking when switching to normal themes
-        const secretThemes = ['ironman-mode', 'barbie-mode', 'neon-mode', 'spiderman-mode'];
+        const secretThemes = ['ironman-mode', 'barbie-mode', 'neon-mode', 'spiderman-mode', 'batman-mode', 'ben10-mode'];
         if (!secretThemes.includes(themeName)) {
             secretThemeActive = null;
             originalThemeBeforeSecret = null;
             // Remove Spider-Man web overlay if exists
             const webOverlay = document.getElementById('spiderman-web-overlay');
             if (webOverlay) webOverlay.remove();
+
+            // Remove Batman signal if exists
+            const batSignal = document.getElementById('batman-signal');
+            if (batSignal) batSignal.remove();
+
+            // Remove Ben 10 overlay if exists
+            const ben10Overlay = document.getElementById('ben10-overlay');
+            if (ben10Overlay) ben10Overlay.remove();
         }
 
         // Update the radio button to reflect the active theme
@@ -947,6 +1149,50 @@ document.addEventListener("DOMContentLoaded", () => {
                     }, i * 100);
 
                 }
+            }
+            easterEggBuffer = '';
+        }
+
+        // 🦇 SECRET: Check for "batman" theme toggle
+        if (easterEggBuffer.slice(-6) === 'batman') {
+            if (secretThemeActive === 'batman-mode') {
+                // Revert to original theme
+                switchTheme(originalThemeBeforeSecret || 'quantum-mode');
+                secretThemeActive = null;
+                originalThemeBeforeSecret = null;
+                const batSignal = document.getElementById('batman-signal');
+                if (batSignal) batSignal.remove();
+            } else {
+                // Save current theme and switch to Batman
+                originalThemeBeforeSecret = localStorage.getItem('preferred-theme') || 'quantum-mode';
+                secretThemeActive = 'batman-mode';
+                document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode', 'barbie-mode', 'neon-mode', 'spiderman-mode', 'ben10-mode');
+                document.body.classList.add('batman-mode');
+                if (neuralNetwork) neuralNetwork.draw();
+
+                // Visual effects removed as per user request
+            }
+            easterEggBuffer = '';
+        }
+
+        // 👽 SECRET: Check for "ben10" theme toggle
+        if (easterEggBuffer.slice(-5) === 'ben10') {
+            if (secretThemeActive === 'ben10-mode') {
+                // Revert to original theme
+                switchTheme(originalThemeBeforeSecret || 'quantum-mode');
+                secretThemeActive = null;
+                originalThemeBeforeSecret = null;
+                const ben10Overlay = document.getElementById('ben10-overlay');
+                if (ben10Overlay) ben10Overlay.remove();
+            } else {
+                // Save current theme and switch to Ben 10
+                originalThemeBeforeSecret = localStorage.getItem('preferred-theme') || 'quantum-mode';
+                secretThemeActive = 'ben10-mode';
+                document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode', 'barbie-mode', 'neon-mode', 'spiderman-mode', 'batman-mode');
+                document.body.classList.add('ben10-mode');
+                if (neuralNetwork) neuralNetwork.draw();
+
+                // Visual effects removed as per user request
             }
             easterEggBuffer = '';
         }

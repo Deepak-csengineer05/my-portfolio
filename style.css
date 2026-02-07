@@ -147,6 +147,53 @@
             background-attachment: fixed !important;
         }
 
+        /* 🦇 SECRET THEME - Batman Mode */
+        .batman-mode {
+            --bg-primary: #2A2A2A;
+            /* Pure Dark Gray */
+            --bg-secondary: rgba(45, 51, 63, 0.3);
+            /* Dark Blue-Gray */
+            --text-primary: #E0E0E0;
+            /* Light Silver for readability */
+            --text-secondary: #91832E;
+            /* Muted Gold/Olive */
+            --accent-color: #EBED09;
+            /* Neon Yellow */
+            --accent-glow: rgba(235, 237, 9, 0.4);
+            --glass-bg: rgba(42, 42, 42, 0.9);
+            --glass-border: rgba(235, 237, 9, 0.2);
+            --node-bg: rgba(235, 237, 9, 0.1);
+            --shadow: rgba(0, 0, 0, 0.4);
+            --code-bg: #1a1a1a;
+            --font-family: 'Segoe UI', 'Impact', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d333f 40%, #0a0a0a 100%) !important;
+            background-attachment: fixed !important;
+        }
+
+        /* 👽 SECRET THEME - Ben 10 Mode */
+        .ben10-mode {
+            --bg-primary: #282828;
+            /* Charcoal Black */
+            --bg-secondary: rgba(54, 130, 58, 0.2);
+            /* Omnitrix Dark Green */
+            --text-primary: #F1F1F3;
+            /* Pure White */
+            --text-secondary: #ADD85D;
+            /* Light Lime Green */
+            --accent-color: #65C652;
+            /* Bright Alien Green */
+            --accent-glow: rgba(101, 198, 82, 0.5);
+            --glass-bg: rgba(40, 40, 40, 0.9);
+            --glass-border: rgba(101, 198, 82, 0.3);
+            --node-bg: rgba(101, 198, 82, 0.15);
+            --shadow: rgba(54, 130, 58, 0.3);
+            --code-bg: #151515;
+            --font-family: 'Segoe UI', sans-serif;
+            /* Omnitrix inspired gradient */
+            background: linear-gradient(135deg, #1a1a1a 0%, #002200 40%, #050505 100%) !important;
+            background-attachment: fixed !important;
+        }
+
 
         /* Global Styles */
         * {
@@ -165,6 +212,62 @@
             color: var(--text-primary);
             overflow-x: hidden;
             transition: background 0.3s ease, color 0.3s ease;
+            position: relative;
+        }
+
+        /* Theme Background Slideshow Layer */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Dark overlay for readability on background images */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.65);
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Show background layer when theme has slideshow active */
+        body.slideshow-active::before {
+            opacity: 1;
+        }
+
+        body.slideshow-active::after {
+            opacity: 1;
+        }
+
+        /* Keyframe for hero name glow animation */
+        @keyframes heroGlow {
+            0%, 100% {
+                text-shadow: 0 0 20px var(--accent-color),
+                             0 0 40px var(--accent-glow),
+                             0 0 60px var(--accent-glow);
+            }
+            50% {
+                text-shadow: 0 0 30px var(--accent-color),
+                             0 0 60px var(--accent-glow),
+                             0 0 80px var(--accent-glow);
+            }
         }
 
         .contact-item {
@@ -567,6 +670,48 @@
             box-shadow: 0 0 20px var(--accent-glow);
         }
 
+        /* ===== AUTO-HIDE NAVBAR IN HIDDEN THEMES ===== */
+        /* Hide navbar by default in hidden themes */
+        .ironman-mode header,
+        .batman-mode header,
+        .spiderman-mode header,
+        .neon-mode header,
+        .barbie-mode header,
+        .ben10-mode header {
+            transform: translateY(-100%) !important;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        /* Show navbar on hover in hidden themes */
+        .ironman-mode header:hover,
+        .batman-mode header:hover,
+        .spiderman-mode header:hover,
+        .neon-mode header:hover,
+        .barbie-mode header:hover,
+        .ben10-mode header:hover {
+            transform: translateY(0) !important;
+        }
+
+        /* Navbar reveal trigger zone */
+        .navbar-reveal-zone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            z-index: 998;
+            pointer-events: none;
+        }
+
+        .ironman-mode .navbar-reveal-zone,
+        .batman-mode .navbar-reveal-zone,
+        .spiderman-mode .navbar-reveal-zone,
+        .neon-mode .navbar-reveal-zone,
+        .barbie-mode .navbar-reveal-zone,
+        .ben10-mode .navbar-reveal-zone {
+            pointer-events: auto;
+        }
+
         /* Hero Section - RESPONSIVE: Fluid padding and gap */
         .hero {
             min-height: 100vh;
@@ -611,6 +756,75 @@
             min-height: clamp(1.8rem, 5vw, 3rem);
             color: var(--accent-color);
             font-weight: 600;
+        }
+
+        /* ===== HIDDEN THEMES: HERO LAYOUT CHANGES ===== */
+        /* Hide profile picture in hidden themes */
+        .ironman-mode .hero .profile-picture-container,
+        .batman-mode .hero .profile-picture-container,
+        .spiderman-mode .hero .profile-picture-container,
+        .neon-mode .hero .profile-picture-container,
+        .barbie-mode .hero .profile-picture-container,
+        .ben10-mode .hero .profile-picture-container {
+            display: none !important;
+        }
+
+        /* Hide typewriter text in hidden themes */
+        .ironman-mode .typewriter,
+        .batman-mode .typewriter,
+        .spiderman-mode .typewriter,
+        .neon-mode .typewriter,
+        .barbie-mode .typewriter,
+        .ben10-mode .typewriter {
+            display: none !important;
+        }
+
+        /* Restructure hero grid for hidden themes - centered bottom layout */
+        .ironman-mode .hero .hero-grid,
+        .batman-mode .hero .hero-grid,
+        .spiderman-mode .hero .hero-grid,
+        .neon-mode .hero .hero-grid,
+        .barbie-mode .hero .hero-grid,
+        .ben10-mode .hero .hero-grid {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 10rem;
+            grid-template-columns: unset;
+        }
+
+        /* Center and enhance hero text for hidden themes */
+        .ironman-mode .hero .hero-text,
+        .batman-mode .hero .hero-text,
+        .spiderman-mode .hero .hero-text,
+        .neon-mode .hero .hero-text,
+        .barbie-mode .hero .hero-text,
+        .ben10-mode .hero .hero-text {
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Dramatic title styling for hidden themes */
+        .ironman-mode .hero .hero-title,
+        .batman-mode .hero .hero-title,
+        .spiderman-mode .hero .hero-title,
+        .neon-mode .hero .hero-title,
+        .barbie-mode .hero .hero-title,
+        .ben10-mode .hero .hero-title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            text-align: center;
+            letter-spacing: 0.15em;
+            font-weight: 900;
+            animation: heroGlow 3s ease-in-out infinite;
+            background: linear-gradient(45deg, var(--accent-color), var(--text-primary), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0;
+            line-height: 1.2;
+            text-transform: uppercase;
         }
 
         /* ANIMATION: Added will-change for GPU optimization */

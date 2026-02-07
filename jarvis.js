@@ -308,13 +308,19 @@ class JARVISAssistant {
             } else if (message.includes('iron man') || message.includes('ironman')) {
                 this.switchTheme('ironman-mode');
                 return 'Switching to Iron Man theme.';
+            } else if (message.includes('batman') || message.includes('dark knight')) {
+                this.switchTheme('batman-mode');
+                return 'Switching to Batman theme.';
+            } else if (message.includes('ben 10') || message.includes('ben ten') || message.includes('omnitrix')) {
+                this.switchTheme('ben10-mode');
+                return 'Switching to Ben 10 theme.';
             }
         }
         return null;
     }
 
     switchTheme(themeName) {
-        document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode');
+        document.body.classList.remove('quantum-mode', 'terminal-mode', 'photon-mode', 'ironman-mode', 'barbie-mode', 'neon-mode', 'spiderman-mode', 'batman-mode', 'ben10-mode');
         document.body.classList.add(themeName);
         localStorage.setItem("preferred-theme", themeName);
 
