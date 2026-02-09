@@ -235,6 +235,188 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize navbar auto-hide
     setupNavbarAutoHide();
 
+    // ===== INTERACTIVE PROFILE PICTURE WITH 3D CAROUSEL =====
+    const profilePicture = document.getElementById('profile-picture');
+    const profileZoomModal = document.getElementById('profile-zoom-modal');
+    const profileZoomBackdrop = profileZoomModal?.querySelector('.profile-zoom-backdrop');
+    const carouselPrev = document.getElementById('carousel-prev');
+    const carouselNext = document.getElementById('carousel-next');
+    const carouselSlides = document.querySelectorAll('.carousel-slide');
+    const indicators = document.querySelectorAll('.indicator');
+    
+    let shapeIndex = 0; // 0: circle, 1: square, 2: rectangle
+    const shapes = ['shape-circle', 'shape-square', 'shape-rectangle'];
+    let clickTimer = null;
+    let clickCount = 0;
+    let currentSlide = 0;
+    const totalSlides = carouselSlides.length;
+    
+    // Profile picture shape morphing and zoom
+    if (profilePicture) {
+        profilePicture.addEventListener('click', (e) => {
+            clickCount++;
+            
+            if (clickCount === 1) {
+                clickTimer = setTimeout(() => {
+                    handleShapeChange();
+                    clickCount = 0;
+                }, 300);
+            } else if (clickCount === 2) {
+                clearTimeout(clickTimer);
+                openProfileZoom();
+                clickCount = 0;
+            }
+        });
+    }
+    
+    function handleShapeChange() {
+        shapes.forEach(shape => profilePicture.classList.remove(shape));
+        shapeIndex = (shapeIndex + 1) % shapes.length;
+        if (shapeIndex > 0) {
+            profilePicture.classList.add(shapes[shapeIndex]);
+        }
+    }
+    
+    function openProfileZoom() {
+        if (profileZoomModal) {
+            profileZoomModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            updateCarousel();
+        }
+    }
+    
+    function closeProfileZoom() {
+        if (profileZoomModal) {
+            profileZoomModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Carousel functionality
+    function updateCarousel() {
+        carouselSlides.forEach((slide, index) => {
+            slide.classList.remove('active', 'adjacent-left', 'adjacent-right', 'far-left', 'far-right', 'hidden');
+            
+            const diff = index - currentSlide;
+            
+            if (diff === 0) {
+                slide.classList.add('active');
+                // Update main profile picture with current carousel image
+                updateMainProfilePicture(slide);
+            } else if (diff === 1 || diff === -(totalSlides - 1)) {
+                slide.classList.add('adjacent-right');
+            } else if (diff === -1 || diff === totalSlides - 1) {
+                slide.classList.add('adjacent-left');
+            } else if (diff === 2 || diff === -(totalSlides - 2)) {
+                slide.classList.add('far-right');
+            } else if (diff === -2 || diff === totalSlides - 2) {
+                slide.classList.add('far-left');
+            } else {
+                slide.classList.add('hidden');
+            }
+        });
+        
+        // Update indicators
+        indicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === currentSlide);
+        });
+    }
+    
+    // Update main profile picture in hero section
+    function updateMainProfilePicture(activeSlide) {
+        const mainProfileImg = profilePicture?.querySelector('img');
+        const carouselImg = activeSlide?.querySelector('img');
+        
+        if (mainProfileImg && carouselImg) {
+            mainProfileImg.src = carouselImg.src;
+            mainProfileImg.alt = carouselImg.alt;
+        }
+    }
+    
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateCarousel();
+    }
+    
+    function prevSlide() {
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        updateCarousel();
+    }
+    
+    function goToSlide(index) {
+        currentSlide = index;
+        updateCarousel();
+    }
+    
+    // Navigation button listeners
+    if (carouselNext) {
+        carouselNext.addEventListener('click', nextSlide);
+    }
+    
+    if (carouselPrev) {
+        carouselPrev.addEventListener('click', prevSlide);
+    }
+    
+    // Indicator click listeners
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => goToSlide(index));
+    });
+    
+    // Slide click listeners (click non-active slides to navigate)
+    carouselSlides.forEach((slide, index) => {
+        slide.addEventListener('click', () => {
+            if (index !== currentSlide) {
+                goToSlide(index);
+            }
+        });
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (profileZoomModal?.classList.contains('active')) {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'Escape') {
+                closeProfileZoom();
+            }
+        }
+    });
+    
+    // Touch swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    if (profileZoomModal) {
+        profileZoomModal.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        profileZoomModal.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+    }
+    
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const diff = touchStartX - touchEndX;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                nextSlide(); // Swipe left - next
+            } else {
+                prevSlide(); // Swipe right - prev
+            }
+        }
+    }
+    
+    // Click backdrop to close
+    if (profileZoomBackdrop) {
+        profileZoomBackdrop.addEventListener('click', closeProfileZoom);
+    }
+
     // --- PRELOADER LOGIC ---
     const preloader = document.getElementById("preloader");
     const welcomeTextEl = preloader.querySelector(".welcome-text");
@@ -321,7 +503,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- INITIALIZE EVERYTHING ---
     neuralNetwork = new NeuralNetwork();
-    new Typewriter(document.getElementById("typewriter"), ["Computer Science Engineer", "Aiming to be a Creative Coder", "Aiming to be a Full-Stack Developer", "People call me a Problem Solver","Aim for Being the next Gen Engineer"], 150);
+    new Typewriter(document.getElementById("typewriter"), ["Computer Science Engineer", "Aiming to be a Creative Coder", "Aiming to be a Full-Stack Developer", "People call me a Problem Solver","Aiming for Being the next Gen Engineer"], 150);
 
     // FIXED: Restored the full, non-truncated code snippets array
     const codeSnippets = [`<span class="token-comment">// C++: Binary Search Algorithm</span>\n<span class="token-keyword">#include</span> <span class="token-string">&lt;iostream&gt;</span>\n<span class="token-keyword">#include</span> <span class="token-string">&lt;vector&gt;</span>\n\n<span class="token-type">int</span> <span class="token-function">binarySearch</span>(<span class="token-type">std::vector&lt;int&gt;</span>& arr, <span class="token-type">int</span> target) {\n  <span class="token-type">int</span> left = <span class="token-number">0</span>, right = arr.size() - <span class="token-number">1</span>;\n  <span class="token-keyword">while</span> (left <= right) {\n    <span class="token-type">int</span> mid = left + (right - left) / <span class="token-number">2</span>;\n    <span class="token-keyword">if</span> (arr[mid] == target) <span class="token-keyword">return</span> mid;\n    <span class="token-keyword">if</span> (arr[mid] < target) left = mid + <span class="token-number">1</span>;\n    <span class="token-keyword">else</span> right = mid - <span class="token-number">1</span>;\n  }\n  <span class="token-keyword">return</span> -<span class="token-number">1</span>;\n}`, '<span class="token-comment">// Java: Simple HashMap Usage</span>\n<span class="token-keyword">import</span> java.util.HashMap;\n<span class="token-keyword">import</span> java.util.Map;\n\n<span class="token-keyword">public class</span> <span class="token-type">FrequencyCounter</span> {\n  <span class="token-keyword">public static void</span> <span class="token-function">main</span>(String[] args) {\n    String text = <span class="token-string">"hello world"</span>;\n    Map&lt;Character, Integer&gt; freq = <span class="token-keyword">new</span> HashMap<>();\n    <span class="token-keyword">for</span> (<span class="token-type">char</span> c : text.toCharArray()) {\n      freq.put(c, freq.getOrDefault(c, <span class="token-number">0</span>) + <span class="token-number">1</span>);\n    }\n    System.out.println(freq);\n  }\n}'];
